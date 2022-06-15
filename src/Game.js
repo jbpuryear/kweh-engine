@@ -13,8 +13,8 @@ export default class Game {
     this._lastStep = 0;
     this._accumulator = 0;
     this._smoothDelta = this._fixedTime;
-    this._nextFpsUpdate = 0;
     this._stepsThisSec = 0;
+    this._lastFpsUpdate = 0;
     this.canvas = canvas;
     this.renderer = new Renderer(this.canvas);
     this.fps = 1000 / this._fixedTime;
@@ -28,15 +28,16 @@ export default class Game {
     this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
 
-    this.rafID = requestAnimationFrame(now => this._step(now));
+    this.rafID = requestAnimationFrame(now => this.step(now));
   }
 
 
   step(now) {
     this._stepsThisSec += 1;
-    if (now >= this._nextFpsUpdate) {
-      this.fps = (this._stepsThisSec * 1000) / (now - this._lastStep);
-      this._nextFpsUpdate = now + 1000;
+    if (now >= this._lastFpsUpdate + 1000) {
+      this.fps = (this._stepsThisSec * 1000) / (now - this._lastFpsUpdate);
+      this._stepsThisSec = 0;
+      this._lastFpsUpdate = now;
     }
     let dt = now - this._lastStep;
     this._lastStep = now;
@@ -54,13 +55,13 @@ export default class Game {
     const fixed = this._fixedTime;
     let acc = this._accumulator + smooth;
     while (acc >= fixed) {
-      this.fixedUpdate();
+      this.fixedUpdate(fixed);
       acc -= fixed;
     }
     this._accumulator = acc;
 
     this.update(dt);
-    this.render(dt, acc/fixed);
+    this.render(this.renderer, dt, acc/fixed);
 
     this._rafID = requestAnimationFrame(now => this.step(now));
   }
