@@ -21,6 +21,7 @@ export default class Pipeline {
 
   destroy() {
     this.renderer.deleteProgram(this.program);
+    this.renderer.off('webglcontextrestored', this._init, this);
     this.renderer = null;
     this.program = null;
   }
