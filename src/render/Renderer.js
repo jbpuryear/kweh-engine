@@ -7,21 +7,14 @@ export default class Renderer extends EventEmitter {
     this.canvas = canvas;
     this.gl = null;
     this.contextLost = false;
-    this._pipeline = null;
-    this._activeAttributes = new Set();
-    this._buffer = new ArrayBuffer(bufferSize);
+    this._bufferSize = bufferSize;
+    this._buffer = null;
     this._glBuffer = null;
+    this._batch = null;
+    this._shader = null;
+    this._activeAttributes = new Set();
+    this._children = new Set();
     this._lastBoundTexture = null;
-    this._views = new Map([
-      [ 'Int8', new Int8Array(this._buffer) ],
-      [ 'Uint8', new Uint8Array(this._buffer) ],
-      [ 'Uint8Clamped', new Uint8ClampedArray(this._buffer) ],
-      [ 'Int16', new Int16Array(this._buffer) ],
-      [ 'Uint16', new Uint16Array(this._buffer) ],
-      [ 'Int32', new Int32Array(this._buffer) ],
-      [ 'Uint32', new Uint32Array(this._buffer) ],
-      [ 'Float32', new Float32Array(this._buffer) ],
-    ]);
 
     canvas.addEventListener('webglcontextlost', (e) => {
       this.contextLost = true;
@@ -33,11 +26,13 @@ export default class Renderer extends EventEmitter {
       this._init();
       this.emit('webglcontextrestored', this);
 
-      const pipeline = this._pipeline;
-      if (pipeline) {
-        pipeline.bufferViews = null;
-        this._pipeline = null;
-        this.bindPipeline(pipeline);
+      const batch = this._batch;
+      const shader = this._shader;
+      if (batch) {
+        this._batch.enabled = false;
+        this._batch = null;
+        this._shader = null;
+        this.bindPipeline(batch, shader);
       }
     });
 
@@ -46,10 +41,16 @@ export default class Renderer extends EventEmitter {
 
 
   destroy() {
-    this.clear();
+    this._children.forEach(child => child.destroy());
+    this._children.clear();
     this.gl.deleteBuffer(this._glBuffer);
+    this._glBuffer = null;
     this._buffer = null;
-    this._pipeline = null;
+    if (this._batch) {
+      this._batch.enabled = null;
+      this._batch = null;
+    }
+    this._shader = null;
     this._lastBoundTexture = null;
     this.gl = null;
   }
@@ -96,6 +97,19 @@ export default class Renderer extends EventEmitter {
   }
 
 
+  createBuffer(size) {
+    const glBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
+    return glBuffer;
+  }
+
+
+  deleteBuffer(buffer) {
+    this.gl.deleteBuffer(buffer);
+  }
+
+
   createTexture(source) {
     const gl = this.gl;
     const glTexture = gl.createTexture();
@@ -122,27 +136,33 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  bindPipeline(pipeline) {
+  bindPipeline(batch, shader) {
     const gl = this.gl;
+    const prevBatch = this._batch;
+    const prevShader = this._shader;
 
-    if (this._pipeline) {
-      this._pipeline.flush();
-      this._pipeline.bufferViews = null;
+    if (prevBatch) {
+      prevBatch.flush();
+      prevBatch.enabled = false;
     }
 
-    if (this._pipeline?.program !== pipeline.program) {
-      gl.useProgram(pipeline.program);
+    if (prevBatch?._glBuffer !== batch._glBuffer) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, batch._glBuffer);
+    }
+
+    if (prevShader?.program !== shader.program) {
+      gl.useProgram(shader.program);
 
       this._activeAttributes.clear();
-      for (const attrib of pipeline.attributes) {
+      for (const attrib of shader.attributes) {
         gl.enableVertexAttribArray(attrib.location);
         gl.vertexAttribPointer(attrib.location, attrib.size, attrib.type, attrib.normalized,
-          pipeline.vertexSize, attrib.offset);
+          batch.vertexSize, attrib.offset);
         this._activeAttributes.add(attrib.location);
       }
 
-      if (this._pipeline) {
-        for (const oldAttrib of this._pipeline.attributes) {
+      if (prevShader) {
+        for (const oldAttrib of prevShader.attributes) {
           if (!this._activeAttributes.has(oldAttrib.location)) {
             gl.disableVertexAttribPointer(oldAttrib.location);
           }
@@ -150,8 +170,9 @@ export default class Renderer extends EventEmitter {
       }
     }
 
-    this._pipeline = pipeline;
-    pipeline.bufferViews = this._views;
+    this._batch = batch;
+    this._shader = shader;
+    batch.enabled = true;
   }
 
 
@@ -165,24 +186,42 @@ export default class Renderer extends EventEmitter {
     gl.disable(gl.CULL_FACE);
     gl.enable(gl.BLEND);
     gl.clearColor(0, 0, 0, 1);
-
-    this._glBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._buffer.byteLength, gl.DYNAMIC_DRAW);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.gl = gl;
     this._activeAttributes.clear();
   }
 
 
-  _draw(count, vertexSize) {
+  _draw(count, vertexSize, buffer) {
     const gl = this.gl;
     const bytes = count * vertexSize;
-    if (bytes === this._buffer.byteLength) {
-      gl.bufferData(gl.ARRAY_BUFFER, 0, this._buffer);
-    } else {
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._buffer, 0, bytes);
-    }
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer, 0, bytes);
     gl.drawArrays(gl.TRIANGLES, 0, count);
+  }
+
+
+  _initSharedBuffers() {
+    if (!this._buffer) {
+      this._buffer = new ArrayBuffer(this._bufferSize);
+      this._glBuffer = this.gl.createBuffer();
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._glBuffer);
+      this.gl.bufferData(this.gl.ARRAY_BUFFER, this._bufferSize, this.gl.DYNAMIC_DRAW);
+      if (this._batch) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._batch._glBuffer);
+      }
+    }
+  }
+
+
+  _getBuffer() {
+    this._initSharedBuffers();
+    return this._buffer;
+  }
+
+
+  _getGlBuffer() {
+    this._initSharedBuffers();
+    return this._glBuffer;
   }
 }
