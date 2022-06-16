@@ -176,6 +176,29 @@ export default class Renderer extends EventEmitter {
   }
 
 
+  uniform(name, v0, v1, v2, v3) {
+    const uniform = this._shader.uniforms.get(name);
+    if (uniform) {
+      const loc = uniform.location;
+      const func = uniform.func;
+      switch (func.length) {
+        case 2: return func.call(this.gl, loc, v0);
+        case 3: return func.call(this.gl, loc, v0, v1);
+        case 4: return func.call(this.gl, loc, v0, v1, v2);
+        case 5: return func.call(this.gl, loc, v0, v1, v2, v3);
+      }
+    }
+  }
+
+
+  uniformv(name, value) {
+    const uniform = this._shader.uniforms.get(name);
+    if (uniform) {
+      return uniform.funcv.call(this.gl, uniform.location, value);
+    }
+  }
+
+
   _init() {
     const gl = this.canvas.getContext('webgl', { depth: false, });
     if (!gl || gl.isContextLost()) {
