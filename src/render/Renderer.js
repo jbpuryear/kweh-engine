@@ -9,6 +9,7 @@ export default class Renderer extends EventEmitter {
     this.contextLost = false;
     this._bufferSize = bufferSize;
     this._buffer = null;
+    this._framebuffer = null;
     this._glBuffer = null;
     this._batch = null;
     this._shader = null;
@@ -46,6 +47,7 @@ export default class Renderer extends EventEmitter {
     this.gl.deleteBuffer(this._glBuffer);
     this._glBuffer = null;
     this._buffer = null;
+    this._framebuffer = null;
     if (this._batch) {
       this._batch.enabled = null;
       this._batch = null;
@@ -110,14 +112,44 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  createTexture(source) {
+  createFramebuffer(glTexture) {
+    const gl = this.gl;
+    const fb = gl.createFramebuffer();
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, glTexture, 0);
+
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      throw new Error(`Framebuffer error: ${status}`);
+    }
+
+    this.gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
+
+    return fb;
+  }
+
+
+  deleteFramebuffer() {
+    this.gl.deleteFramebuffer(framebuffer);
+  }
+
+
+  createTexture(source, width, height) {
+    width = source?.width ?? width;
+    width = source?.height ?? height;
     const gl = this.gl;
     const glTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, glTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    const isPowerOf2 = (width & (width - 1) === 0) && (height & (height - 1 === 0));
 
-    // Are dimensions powers of 2?
-    if ((source.width & (source.width - 1) === 0) && (source.height & (source.height - 1 === 0))) {
+    gl.bindTexture(gl.TEXTURE_2D, glTexture);
+    if (source) {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    } else {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    }
+
+    if (isPowerOf2) {
       gl.generateMipmap(gl.TEXTURE_2D);
     } else {
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -133,6 +165,24 @@ export default class Renderer extends EventEmitter {
 
   deleteTexture(glTexture) {
     this.gl.deleteTexture(glTexture);
+  }
+
+
+  bindRenderTarget(renderTarget) {
+    if (this._batch) {
+      this._batch.flush();
+    }
+
+    const gl = this.gl;
+    if (renderTarget) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
+      gl.viewport(0, 0, renderTarget.width, renderTarget.height);
+      this._framebuffer = renderTarget.framebuffer;
+    } else {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      this._framebuffer = null;
+    }
   }
 
 
