@@ -7,6 +7,7 @@ export default class Renderer extends EventEmitter {
     this.canvas = canvas;
     this.gl = null;
     this.contextLost = false;
+    this.maxTextures = 0;
     this._bufferSize = bufferSize;
     this._buffer = null;
     this._framebuffer = null;
@@ -15,7 +16,8 @@ export default class Renderer extends EventEmitter {
     this._shader = null;
     this._activeAttributes = new Set();
     this._children = new Set();
-    this._lastBoundTexture = null;
+    this._activeTexture = 0;
+    this._boundTextures = null;
 
     canvas.addEventListener('webglcontextlost', (e) => {
       this.contextLost = true;
@@ -52,8 +54,8 @@ export default class Renderer extends EventEmitter {
       this._batch.enabled = null;
       this._batch = null;
     }
+    this._boundTextures = null;
     this._shader = null;
-    this._lastBoundTexture = null;
     this.gl = null;
   }
 
@@ -135,6 +137,16 @@ export default class Renderer extends EventEmitter {
   }
 
 
+  activeTexture(unit) {
+    if (unit > 0 && unit < this.maxTextures) {
+      this._activeTexture = unit;
+      this.gl.activeTexture(unit);
+      return true;
+    }
+    return false;
+  }
+
+
   createTexture(source, width, height) {
     width = source?.width ?? width;
     width = source?.height ?? height;
@@ -157,7 +169,7 @@ export default class Renderer extends EventEmitter {
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
 
-    gl.bindTexture(gl.TEXTURE_2D, this._lastBoundTexture);
+    gl.bindTexture(gl.TEXTURE_2D, this._boundTextures[this._currentTexture]);
 
     return glTexture;
   }
@@ -165,6 +177,26 @@ export default class Renderer extends EventEmitter {
 
   deleteTexture(glTexture) {
     this.gl.deleteTexture(glTexture);
+  }
+
+
+  bindTexture(texture, unit = this._currentTexture) {
+    const gl = this.gl;
+    const glTex = texture.glTexture;
+    const prev = this._boundTextures[unit];
+    if (this.activeTexture(unit)) {
+      if (glTex !== prev) {
+        gl.activeTexture(gl.TEXTURE0 + unit);
+        gl.bindTexture(gl.TEXTURE_2D, glTex);
+        this._boundTextures[unit] = glTex;
+        texture.glUnit = unit;
+        if (prev) {
+          prev.glUnit = -1;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
 
@@ -260,6 +292,11 @@ export default class Renderer extends EventEmitter {
     gl.enable(gl.BLEND);
     gl.clearColor(0, 0, 0, 1);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+    this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    this._currentTexture = 0;
+    this._boundTextures = new Array(this._maxTextures);
+    this._boundTextures.fill(null);
 
     this.gl = gl;
     this._activeAttributes.clear();

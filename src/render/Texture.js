@@ -3,6 +3,7 @@ export default class Texture {
     this.renderer = renderer;
     this.source = source;
     this.glTexture = null;
+    this.glUnit = -1;
 
     renderer.on('webglcontextrestored', this._init, this);
 
