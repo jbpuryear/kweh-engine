@@ -1,6 +1,3 @@
-import Renderer from './render/Renderer.js';
-
-
 export default class Game {
   constructor(width = 400, height = 300) {
     const canvas = document.createElement('canvas');
@@ -16,7 +13,6 @@ export default class Game {
     this._stepsThisSec = 0;
     this._lastFpsUpdate = 0;
     this.canvas = canvas;
-    this.renderer = new Renderer(this.canvas);
     this.fps = 1000 / this._fixedTime;
   }
 
@@ -61,7 +57,7 @@ export default class Game {
     this._accumulator = acc;
 
     this.update(dt);
-    this.render(this.renderer, dt, acc/fixed);
+    this.render(dt, acc/fixed);
 
     this._rafID = requestAnimationFrame(now => this.step(now));
   }
