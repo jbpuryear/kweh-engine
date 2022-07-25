@@ -60,6 +60,11 @@ export default class Renderer extends EventEmitter {
   }
 
 
+  clear() {
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+  }
+
+
   createProgram(vert, frag) {
     const gl = this.gl;
     const program = gl.createProgram();
