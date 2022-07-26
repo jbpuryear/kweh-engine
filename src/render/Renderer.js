@@ -143,12 +143,14 @@ export default class Renderer extends EventEmitter {
 
 
   activeTexture(unit) {
-    if (unit > 0 && unit < this.maxTextures) {
-      this._activeTexture = unit;
-      this.gl.activeTexture(unit);
-      return true;
+    if (unit < 0 && unit > this.maxTextures - 1) {
+      console.error(`Unit ${unit} out of range`);
+      return false;
     }
-    return false;
+
+    this._activeTexture = unit;
+    this.gl.activeTexture(this.gl.TEXTURE0 + unit);
+    return true;
   }
 
 
@@ -189,19 +191,21 @@ export default class Renderer extends EventEmitter {
     const gl = this.gl;
     const glTex = texture.glTexture;
     const prev = this._boundTextures[unit];
-    if (this.activeTexture(unit)) {
-      if (glTex !== prev) {
-        gl.activeTexture(gl.TEXTURE0 + unit);
-        gl.bindTexture(gl.TEXTURE_2D, glTex);
-        this._boundTextures[unit] = glTex;
-        texture.glUnit = unit;
-        if (prev) {
-          prev.glUnit = -1;
-        }
-      }
-      return true;
+
+    if (!this.activeTexture(unit)) {
+      return false;
     }
-    return false;
+
+    if (glTex !== prev) {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, glTex);
+      this._boundTextures[unit] = glTex;
+      texture.glUnit = unit;
+      if (prev) {
+        prev.glUnit = -1;
+      }
+    }
+    return true;
   }
 
 
