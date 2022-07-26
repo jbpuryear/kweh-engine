@@ -300,6 +300,7 @@ export default class Renderer extends EventEmitter {
     gl.disable(gl.CULL_FACE);
     gl.enable(gl.BLEND);
     gl.clearColor(0, 0, 0, 1);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
