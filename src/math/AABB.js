@@ -1,44 +1,53 @@
+// Contains, overlaps fails with negative widths, heights
 export default class AABB {
   constructor(x = 0, y = 0, width = 0, height = 0) {
     this.x = x;
     this.y = y;
-    this._width = width;
-    this._height = height;
+    this.width = width;
+    this.height = height;
   }
 
 
-  get width() { return this._width; }
-  set width(w) { this._width = Math.max(0, w); }
-
-
-  get height() { return this._height; }
-  set height(h) { this._height = Math.max(0, h); }
-
-
-  contains(x, y) {
+  static contains(aabb, x, y) {
     return (
-      this.x <= x &&
-      this.x + this.width >= x &&
-      this.y <= y &&
-      this.y + this.height >= y
+      aabb.x <= x &&
+      aabb.x + aabb.width >= x &&
+      aabb.y <= y &&
+      aabb.y + aabb.height >= y
     );
   }
 
 
-  overlaps(aabb) {
+  static copy(aabb, out) {
+    out.x = aabb.x;
+    out.y = aabb.y;
+    out.width = aabb.width;
+    out.height = aabb.height;
+    return out;
+  }
+
+
+  static overlaps(a, b) {
     return (
-      this.x <= aabb.x + aabb.width &&
-      this.x + this.width >= aabb.x &&
-      this.y <= aabb.y + aabb.height &&
-      this.y + this.height >= aabb.y
+      a.x <= b.x + b.width &&
+      a.x + a.width >= b.x &&
+      a.y <= b.y + b.height &&
+      a.y + a.height >= b.y
     );
   }
 
 
-  set(x, y, w, h) {
-    this.x = x;
-    this.y = y;
-    this.width = w;
-    this.height = h;
+  static set(aabb, x, y, w, h) {
+    aabb.x = x;
+    aabb.y = y;
+    aabb.width = w;
+    aabb.height = h;
+    return this;
   }
+
+
+  contains(x, y) { return AABB.contains(this, x, y); }
+  copy(aabb) { return AABB.copy(aabb, this); }
+  overlaps(aabb) { return AABB.overlaps(this, aabb); }
+  set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
 }
