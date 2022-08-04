@@ -11,9 +11,9 @@ export default class AABB {
   static contains(aabb, x, y) {
     return (
       aabb.x <= x &&
-      aabb.x + aabb.width >= x &&
+      aabb.x + aabb.width > x &&
       aabb.y <= y &&
-      aabb.y + aabb.height >= y
+      aabb.y + aabb.height > y
     );
   }
 
