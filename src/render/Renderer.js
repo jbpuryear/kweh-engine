@@ -16,7 +16,7 @@ export default class Renderer extends EventEmitter {
     this._shader = null;
     this._activeAttributes = new Set();
     this._children = new Set();
-    this._activeTexture = 0;
+    this._activeTexture = -1;
     this._boundTextures = null;
 
     canvas.addEventListener('webglcontextlost', (e) => {
@@ -143,13 +143,14 @@ export default class Renderer extends EventEmitter {
 
 
   activeTexture(unit) {
+
     if (unit < 0 && unit > this.maxTextures - 1) {
       console.error(`Unit ${unit} out of range`);
       return false;
     }
 
-    this._activeTexture = unit;
     this.gl.activeTexture(this.gl.TEXTURE0 + unit);
+    this._activeTexture = unit;
     return true;
   }
 
@@ -189,17 +190,15 @@ export default class Renderer extends EventEmitter {
 
   bindTexture(texture, unit = this._currentTexture) {
     const gl = this.gl;
-    const glTex = texture.glTexture;
     const prev = this._boundTextures[unit];
 
     if (!this.activeTexture(unit)) {
       return false;
     }
 
-    if (glTex !== prev) {
-      gl.activeTexture(gl.TEXTURE0 + unit);
-      gl.bindTexture(gl.TEXTURE_2D, glTex);
-      this._boundTextures[unit] = glTex;
+    if (texture !== prev) {
+      gl.bindTexture(gl.TEXTURE_2D, texture.glTexture);
+      this._boundTextures[unit] = texture;
       texture.glUnit = unit;
       if (prev) {
         prev.glUnit = -1;
