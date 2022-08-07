@@ -40,16 +40,28 @@ export default class Shader {
     for (let i = 0; i < uniformCount; i += 1) {
       const info = gl.getActiveUniform(program, i);
       if (info) {
-        const loc = gl.getUniformLocation(program, info.name);
-        if (location !== null) {
-          uniforms.set(info.name, new Uniform(gl, loc, info.type));
-        }
+        const bracket = info.name.indexOf('[');
 
-        const bracket = info.name.indexOf('[0]');
         if (bracket > 0) {
           const name = info.name.substring(0, bracket);
-          uniforms.set(name, new Uniform(gl, loc, info.type));
+          for (let i = 0; i < info.size; i += 1) {
+            const nameIdx = `${name}[${i}]`;
+            const loc = gl.getUniformLocation(program, nameIdx);
+            if (loc !== null) {
+              const uniform = new Uniform(gl, loc, info.type);
+              uniforms.set(nameIdx, uniform);
+              if (i === 0) {
+                uniforms.set(`${name}`, uniform);
+              }
+            }
+          }
+        } else {
+          const loc = gl.getUniformLocation(program, info.name);
+          if (loc !== null) {
+            uniforms.set(info.name, new Uniform(gl, loc, info.type));
+          }
         }
+
       }
     }
   }
