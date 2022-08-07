@@ -143,14 +143,15 @@ export default class Renderer extends EventEmitter {
 
 
   activeTexture(unit) {
-
     if (unit < 0 && unit > this.maxTextures - 1) {
       console.error(`Unit ${unit} out of range`);
       return false;
     }
 
-    this.gl.activeTexture(this.gl.TEXTURE0 + unit);
-    this._activeTexture = unit;
+    if (this._activeTexture !== unit) {
+      this.gl.activeTexture(this.gl.TEXTURE0 + unit);
+      this._activeTexture = unit;
+    }
     return true;
   }
 
@@ -177,8 +178,6 @@ export default class Renderer extends EventEmitter {
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
 
-    gl.bindTexture(gl.TEXTURE_2D, this._boundTextures[this._currentTexture]);
-
     return glTexture;
   }
 
@@ -188,7 +187,7 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  bindTexture(texture, unit = this._currentTexture) {
+  bindTexture(texture, unit = 0) {
     const gl = this.gl;
     const prev = this._boundTextures[unit];
 
@@ -205,6 +204,15 @@ export default class Renderer extends EventEmitter {
       }
     }
     return true;
+  }
+
+
+  unbindTexture(unit) {
+    const tex = bound[unit];
+    if (tex) {
+      tex.glUnit = -1;
+      bound[i] = null;
+    }
   }
 
 
@@ -303,7 +311,6 @@ export default class Renderer extends EventEmitter {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    this._currentTexture = 0;
     this._boundTextures = new Array(this._maxTextures);
     this._boundTextures.fill(null);
 
