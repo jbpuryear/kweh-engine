@@ -50,4 +50,9 @@ export default class AABB {
   copy(aabb) { return AABB.copy(aabb, this); }
   overlaps(aabb) { return AABB.overlaps(this, aabb); }
   set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
+
+  left() { return this.x; }
+  right() { return this.x + this.width; }
+  top() { return this.y; }
+  bottom() { return this.y + this.height }
 }
