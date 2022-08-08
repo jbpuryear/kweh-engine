@@ -98,7 +98,7 @@ export default class Vec2 {
 
 
   static normalize(v, out) {
-    const len = Vec2.length(v);
+    let len = Vec2.length(v);
     if (len > 0) {
       len = 1 / len;
     }
