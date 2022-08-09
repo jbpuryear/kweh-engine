@@ -1,8 +1,8 @@
-import GL_CONST from './GL_CONST.js';
+import * as GL_CONST from './GL_CONST.js';
 
 
 export default class Attribute {
-  constructor(name, offset, size = 1, type = GL_CONST.get('FLOAT'), normalized = false) {
+  constructor(name, offset, size = 1, type = GL_CONST.FLOAT, normalized = false) {
     this.name = name;
     this.size = size;
     this.type = type;
