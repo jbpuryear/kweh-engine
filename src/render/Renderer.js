@@ -162,6 +162,7 @@ export default class Renderer extends EventEmitter {
     const gl = this.gl;
     const glTexture = gl.createTexture();
     const isPowerOf2 = (width & (width - 1) === 0) && (height & (height - 1 === 0));
+    const prev = this._boundTextures[this._activeTexture];
 
     gl.bindTexture(gl.TEXTURE_2D, glTexture);
     if (source) {
@@ -178,6 +179,7 @@ export default class Renderer extends EventEmitter {
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
 
+    gl.bindTexture(gl.TEXTURE_2D, (prev?.glTexture ?? null));
     return glTexture;
   }
 
