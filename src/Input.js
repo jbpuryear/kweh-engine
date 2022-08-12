@@ -230,4 +230,8 @@ export class Stick {
 
     return out;
   }
+
+  getAngle() {
+    return Math.atan2(this._yAxis.getValue(), this._xAxis.getValue());
+  }
 }
