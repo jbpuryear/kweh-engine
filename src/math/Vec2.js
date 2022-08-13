@@ -90,6 +90,15 @@ export default class Vec2 {
   }
 
 
+  static limit(v, max, out) {
+    const len = Vec2.length(v);
+    if (len && len > max) {
+      Vec2.scale(v, max / len, out);
+    }
+    return out;
+  }
+
+
   static multiply(a, b, out) {
     out.x = a.x * b.x;
     out.y = a.y * b.y;
@@ -104,6 +113,7 @@ export default class Vec2 {
     }
     out.x = v.x * len;
     out.y = v.y * len;
+    return out;
   }
 
 
@@ -143,6 +153,7 @@ export default class Vec2 {
   static subtract(a, b, out) {
     out.x = a.x - b.x;
     out.y = a.y - b.y;
+    return out;
   }
 
 
@@ -158,6 +169,7 @@ export default class Vec2 {
   fuzzyEquals(v) { return Vec2.fuzzyEquals(this, v); }
   length() { return Math.hypot(this.x, this.y); }
   lerp(v, t) { return Vec2.lerp(this, v, t, this); }
+  limit(max) { return Vec2.limit(this, max, this); }
   multiply(v) { return Vec2.multiply(this, v, this); }
   normalize() { return Vec2.normalize(this, this); }
   round() { return Vec2.round(this, this); }
