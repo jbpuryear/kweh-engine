@@ -24,7 +24,7 @@ export default class Game {
     this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
 
-    this.rafID = requestAnimationFrame(now => this.step(now));
+    this._rafID = requestAnimationFrame(now => this.step(now));
   }
 
 
