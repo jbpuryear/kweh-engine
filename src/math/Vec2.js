@@ -138,6 +138,13 @@ export default class Vec2 {
   }
 
 
+  static setLength(v, length, out) {
+    Vec2.normalize(v, out);
+    Vec2.scale(out, length, out);
+    return out;
+  }
+
+
   static squaredDistance(a, b) {
     const dx = b.x - a.x;
     const dy = b.y - a.y;
@@ -175,6 +182,7 @@ export default class Vec2 {
   round() { return Vec2.round(this, this); }
   scale(s) { return Vec2.scale(this, s, this); }
   set(x, y) { return Vec2.set(x, y, this); }
+  setLength(length) { return Vec2.setLength(this, length, this); }
   squaredDistance(v) { return Vec2.squaredDistance(this, v); }
   squaredLength() { return Vec2.squaredLength(this); }
   subtract(v) { return Vec2.subtract(this, v, this); }
