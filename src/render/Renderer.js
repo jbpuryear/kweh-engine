@@ -158,7 +158,7 @@ export default class Renderer extends EventEmitter {
 
   createTexture(source, width, height) {
     width = source?.width ?? width;
-    width = source?.height ?? height;
+    height = source?.height ?? height;
     const gl = this.gl;
     const glTexture = gl.createTexture();
     const isPowerOf2 = (width & (width - 1) === 0) && (height & (height - 1 === 0));
