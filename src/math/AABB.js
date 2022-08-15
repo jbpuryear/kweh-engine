@@ -27,6 +27,13 @@ export default class AABB {
   }
 
 
+  static getRandomPoint(aabb, out) {
+    out.x = aabb.x + Math.random() * aabb.width;
+    out.y = aabb.y + Math.random() * aabb.height;
+    return out;
+  }
+
+
   static overlaps(a, b) {
     return (
       a.x < b.x + b.width &&
@@ -48,6 +55,7 @@ export default class AABB {
 
   contains(x, y) { return AABB.contains(this, x, y); }
   copy(aabb) { return AABB.copy(aabb, this); }
+  getRandomPoint(v) { return AABB.getRandomPoint(this, v); }
   overlaps(aabb) { return AABB.overlaps(this, aabb); }
   set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
 

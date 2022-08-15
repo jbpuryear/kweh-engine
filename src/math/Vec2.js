@@ -78,6 +78,13 @@ export default class Vec2 {
   }
 
 
+  static getRandomPoint(v, out) {
+    out.x = v.x;
+    out.y = v.y;
+    return out;
+  }
+
+
   static length(v) {
     return Math.hypot(v.x, v.y);
   }
@@ -174,6 +181,7 @@ export default class Vec2 {
   dot(v) { return Vec2.dot(this, v); }
   equals(v) { return Vec2.equals(this, v); }
   fuzzyEquals(v) { return Vec2.fuzzyEquals(this, v); }
+  getRandomPoint(out) { return Vec2.getRandomPoint(this, out, out); }
   length() { return Math.hypot(this.x, this.y); }
   lerp(v, t) { return Vec2.lerp(this, v, t, this); }
   limit(max) { return Vec2.limit(this, max, this); }
