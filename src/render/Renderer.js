@@ -264,7 +264,7 @@ export default class Renderer extends EventEmitter {
       if (prevShader) {
         for (const oldAttrib of prevShader.attributes) {
           if (!this._activeAttributes.has(oldAttrib.location)) {
-            gl.disableVertexAttribPointer(oldAttrib.location);
+            gl.disableVertexAttribArray(oldAttrib.location);
           }
         }
       }
