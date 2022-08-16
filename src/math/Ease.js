@@ -40,7 +40,7 @@ export const expoOut = x => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 export const expoInOut = x => {
   if (x === 0) { return 0; }
   if (x === 1) { return 1; }
-  if (x < 0.5) { return Math.pow(2, 20 * x - 10); }
+  if (x < 0.5) { return Math.pow(2, 20 * x - 10) / 2; }
   return 1 - Math.pow(2, -20 * x + 10) / 2;
 }
 
