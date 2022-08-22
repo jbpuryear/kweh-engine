@@ -5,33 +5,41 @@ function mapDeadzone(val, low, high) {
 }
 
 
-export function getGamepad(index) {
-  return navigator.getGamepads?.()[index] || null;
-}
-
-
-export function rumble(index, duration, strongMag, weakMag) {
-  const pad = getGamepad(index);
-  pad?.vibrationActuator?.playEffect('dual-rumble', {
-    duration: duration,
-    strongMagnitude: strongMag,
-    weakMagnitude: weakMag,
-  });
-}
-
-
 export class InputManager {
-  constructor() {
+  constructor(padCount) {
     this.inputs = new Map();
     this.axes = new Map();
     this.sticks = new Map();
+    this._gamepads = new Array(padCount);
+
+    this._gamepads.fill(null);
   }
+
 
   update(dt) {
     const time = performance.now();
+    const padCount = this._gamepads.length;
+    for (let i = 0; i < padCount; i += 1) {
+      this._gamepads[i] = navigator.getGamepads?.()[i] || null;
+    }
     for (const input of this.inputs.values()) {
       input.update(dt, time);
     }
+  }
+
+
+  rumble(index, duration, strongMag, weakMag) {
+    const pad = this._getGamepad(index);
+    pad?.vibrationActuator?.playEffect('dual-rumble', {
+      duration: duration,
+      strongMagnitude: strongMag,
+      weakMagnitude: weakMag,
+    });
+  }
+
+
+  _getGamepad(index) {
+    return this._gamepads[index] ?? null;
   }
 }
 
@@ -94,13 +102,17 @@ export class Input {
 
 
 export class Trigger {
+  constructor(manager) {
+    this.manager = manager;
+  }
+
   getStrength() { return 0; }
 }
 
 
 export class Key extends Trigger {
-  constructor(code, target=window) {
-    super();
+  constructor(manager, code, target=window) {
+    super(manager);
     this._strength = 0;
 
     target.addEventListener('keydown', (e) => {
@@ -123,8 +135,8 @@ export class Key extends Trigger {
 
 
 export class Button extends Trigger {
-  constructor(padIndex, button, deadzoneLow = 0.05, deadzoneHigh = 1) {
-    super();
+  constructor(manager, padIndex, button, deadzoneLow = 0.05, deadzoneHigh = 1) {
+    super(manager);
     this._padIndex = padIndex;
     this._button = button;
     this.deadzoneLow = deadzoneLow;
@@ -132,7 +144,7 @@ export class Button extends Trigger {
   }
   
   getStrength() {
-    const pad = getGamepad(this._padIndex);
+    const pad = this.manager._getGamepad(this._padIndex);
     if (!pad) { return 0; }
     const button = pad.buttons[this._button];
     if (button) {
@@ -145,8 +157,8 @@ export class Button extends Trigger {
 
 
 export class AxisPositive extends Trigger {
-  constructor(padIndex, axis, deadzoneLow = 0.1, deadzoneHigh = 1) {
-    super();
+  constructor(manager, padIndex, axis, deadzoneLow = 0.1, deadzoneHigh = 1) {
+    super(manager);
     this._padIndex = padIndex;
     this._axis = axis;
     this.deadzoneLow = deadzoneLow;
@@ -154,7 +166,7 @@ export class AxisPositive extends Trigger {
   }
 
   getStrength() {
-    const pad = getGamepad(this._padIndex);
+    const pad = this.manager._getGamepad(this._padIndex);
     if (!pad) { return 0; }
     const val = Math.max(0, pad.axes[this._axis]);
     return mapDeadzone(val, this.deadzoneLow, this.deadzoneHigh);
@@ -163,8 +175,8 @@ export class AxisPositive extends Trigger {
 
 
 export class AxisNegative extends Trigger {
-  constructor(padIndex, axis, deadzoneLow = 0.1, deadzoneHigh = 1) {
-    super();
+  constructor(manager, padIndex, axis, deadzoneLow = 0.1, deadzoneHigh = 1) {
+    super(manager);
     this._padIndex = padIndex;
     this._axis = axis;
     this.deadzoneLow = deadzoneLow;
@@ -172,7 +184,7 @@ export class AxisNegative extends Trigger {
   }
 
   getStrength() {
-    const pad = getGamepad(this._padIndex);
+    const pad = this.manager._getGamepad(this._padIndex);
     if (!pad) { return 0; }
     const val = Math.min(0, pad.axes[this._axis]);
     return mapDeadzone(-val, this.deadzoneLow, this.deadzoneHigh);
