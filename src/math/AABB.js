@@ -49,7 +49,7 @@ export default class AABB {
     aabb.y = y;
     aabb.width = w;
     aabb.height = h;
-    return this;
+    return aabb;
   }
 
 
