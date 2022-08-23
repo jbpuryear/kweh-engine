@@ -15,16 +15,16 @@ export default class Renderer extends EventEmitter {
     this._batch = null;
     this._shader = null;
     this._activeAttributes = new Set();
-    this._children = new Set();
     this._activeTexture = -1;
     this._boundTextures = null;
 
     canvas.addEventListener('webglcontextlost', (e) => {
-      this.contextLost = true;
       e.preventDefault();
+      this.contextLost = true;
     });
 
-    canvas.addEventListener('webglcontextrestored', () => {
+    canvas.addEventListener('webglcontextrestored', (e) => {
+      e.preventDefault();
       this.contextLost = false;
       this._init();
       this.emit('webglcontextrestored', this);
@@ -44,8 +44,6 @@ export default class Renderer extends EventEmitter {
 
 
   destroy() {
-    this._children.forEach(child => child.destroy());
-    this._children.clear();
     this.gl.deleteBuffer(this._glBuffer);
     this._glBuffer = null;
     this._buffer = null;
@@ -210,10 +208,10 @@ export default class Renderer extends EventEmitter {
 
 
   unbindTexture(unit) {
-    const tex = bound[unit];
+    const tex = this._boundTextures[unit];
     if (tex) {
       tex.glUnit = -1;
-      bound[i] = null;
+      this._boundTextures[unit] = null;
     }
   }
 
@@ -312,11 +310,16 @@ export default class Renderer extends EventEmitter {
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    this._boundTextures = new Array(this._maxTextures);
-    this._boundTextures.fill(null);
-
     this.gl = gl;
+    this.contextLost = false;
+    this.maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    this._buffer = null;
+    this._framebuffer = null;
+    this._glBuffer = null;
+    this._activeTexture = -1;
+    this._boundTextures = new Array(this.maxTextures);
+
+    this._boundTextures.fill(null);
     this._activeAttributes.clear();
   }
 
@@ -335,9 +338,6 @@ export default class Renderer extends EventEmitter {
       this._glBuffer = this.gl.createBuffer();
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._glBuffer);
       this.gl.bufferData(this.gl.ARRAY_BUFFER, this._bufferSize, this.gl.DYNAMIC_DRAW);
-      if (this._batch) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this._batch._glBuffer);
-      }
     }
   }
 

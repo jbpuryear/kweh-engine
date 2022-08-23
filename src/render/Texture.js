@@ -31,8 +31,6 @@ export default class Texture {
 
   _init(renderer) {
     this.glTexture = renderer.createTexture(this.source);
-    for (const frame of this.frames.values()) {
-      frame.texture = this;
-    }
+    this.glUnit = -1;
   }
 }

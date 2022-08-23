@@ -11,12 +11,6 @@ export default class Batch {
 
     renderer.on('webglcontextrestored', this._init, this);
 
-    if (useSharedBuffer) {
-      this.buffer = renderer._getBuffer();
-    } else {
-      this.buffer = new ArrayBuffer(bufferSize);
-    }
-
     this._init(renderer);
   }
 
@@ -53,8 +47,10 @@ export default class Batch {
 
   _init(renderer) {
     if (this._sharedBuffer) {
+      this.buffer = renderer._getBuffer();
       this._glBuffer = renderer._getGlBuffer();
     } else {
+      this.buffer = new ArrayBuffer(bufferSize);
       this._glBuffer = renderer.createBuffer(this.buffer.byteLength);
     }
     this.maxVertices = Math.floor(this.buffer.byteLength / this.vertexSize);
