@@ -20,7 +20,12 @@ export default class Vec2 {
   }
 
 
-  static angle(a, b) {
+  static angle(v) {
+    return Math.atan2(v.y, v.x);
+  }
+
+
+  static angleTo(a, b) {
     const x1 = a.x;
     const x2 = b.x;
     const y1 = a.y;
@@ -56,6 +61,13 @@ export default class Vec2 {
   }
 
 
+  static distanceSq(a, b) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    return dx*dx + dy*dy;
+  }
+
+
   static divide(a, b, out) {
     out.x = a.x / b.x;
     out.y = a.y / b.y;
@@ -87,6 +99,11 @@ export default class Vec2 {
 
   static length(v) {
     return Math.hypot(v.x, v.y);
+  }
+
+
+  static lengthSq(v) {
+    return v.x*v.x + v.y*v.y;
   }
 
 
@@ -152,18 +169,6 @@ export default class Vec2 {
   }
 
 
-  static squaredDistance(a, b) {
-    const dx = b.x - a.x;
-    const dy = b.y - a.y;
-    return dx*dx + dy*dy;
-  }
-
-
-  static squaredLength(v) {
-    return v.x*v.x + v.y*v.y;
-  }
-
-
   static subtract(a, b, out) {
     out.x = a.x - b.x;
     out.y = a.y - b.y;
@@ -173,16 +178,19 @@ export default class Vec2 {
 
   add(v) { return Vec2.add(this, v, this); }
   angle() { return Math.atan2(this.y, this.x); }
+  angleTo(v) { return Vec2.angleTo(this, v); }
   clone() { return new Vec2(this.x, this.y); }
   copy(v) { return Vec2.copy(v, this); }
   cross(v, out) { return Vec2.cross(this, v, out); }
   distance(v) { return Vec2.distance(this, v); }
+  distanceSq(v) { return Vec2.squaredDistance(this, v); }
   divide(v) { return Vec2.divide(this, v, this); }
   dot(v) { return Vec2.dot(this, v); }
   equals(v) { return Vec2.equals(this, v); }
   fuzzyEquals(v) { return Vec2.fuzzyEquals(this, v); }
   getRandomPoint(out) { return Vec2.getRandomPoint(this, out, out); }
   length() { return Math.hypot(this.x, this.y); }
+  lengthSq() { return Vec2.squaredLength(this); }
   lerp(v, t) { return Vec2.lerp(this, v, t, this); }
   limit(max) { return Vec2.limit(this, max, this); }
   multiply(v) { return Vec2.multiply(this, v, this); }
@@ -191,7 +199,5 @@ export default class Vec2 {
   scale(s) { return Vec2.scale(this, s, this); }
   set(x, y) { return Vec2.set(x, y, this); }
   setLength(length) { return Vec2.setLength(this, length, this); }
-  squaredDistance(v) { return Vec2.squaredDistance(this, v); }
-  squaredLength() { return Vec2.squaredLength(this); }
   subtract(v) { return Vec2.subtract(this, v, this); }
 }
