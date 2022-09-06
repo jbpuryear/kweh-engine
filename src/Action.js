@@ -20,7 +20,7 @@ export class ActionManager {
 
   update(dt) {
     for (const action of this.actions) {
-      if (action.run(dt)) {
+      if (action.update(dt)) {
         this.actions.delete(action);
       }
     }
@@ -34,7 +34,7 @@ export class Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     return this.complete = true;
   }
 
@@ -52,10 +52,10 @@ export class All extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     let complete = true;
     for (const action of this.actions) {
-      if (!action.complete && !action.run(dt)) {
+      if (!action.complete && !action.update(dt)) {
         complete = false;
       }
     }
@@ -74,45 +74,73 @@ export class All extends Action {
 
 
 export class Animation extends Action {
-  constructor(target, property, frames, durations) {
+  constructor(target, property, conf = null, loop = false) {
     super();
     this.target = target;
     this.property = property;
-    this.frames = frames;
-    this.durations = Array.isArray(durations) ? durations : new Array(frames.length).fill(durations);
-    this.accumulator = 0;
-    this.index = 0;
+    this.loop = loop;
+    this._conf = conf;
+    this._accumulator = 0;
+    this._index = 0;
   }
 
 
-  run(dt) {
-    const frameCount = this.frames.length;
-    let t = this.accumulator + dt;
-    let i = this.index;
-    while (i < frameCount && t >= this.durations[i]) {
-      t -= this.durations[i];
+  play(conf, loop = false, restart = false) {
+    if (!this.complete && conf === this._conf && !restart) {
+      return;
+    }
+    this.loop = loop;
+    this.complete = false;
+    this._conf = conf;
+    this._accumulator = 0;
+    this._index = 0;
+  }
+
+
+  update(dt) {
+    if (this.complete) {
+      return true;
+    }
+
+    const conf = this._conf;
+    const frameCount = conf.frames.length;
+    const loop = this.loop;
+    let i = this._index;
+    let t = this._accumulator + dt;
+    while (t >= conf.durations[i]) {
+      t -= conf.durations[i];
       i += 1;
-    }
-
-    if (i >= frameCount) {
-      if (frameCount > 0) {
-        this.target[this.property] = this.frames[frameCount - 1];
+      if (i >= frameCount) {
+        if (loop) {
+          i = i % frameCount;
+        } else {
+          i = frameCount - 1;
+          this.complete = true;
+          break;
+        }
       }
-      return this.complete = true;
     }
 
-    this.accumulator = t;
-    this.index = i;
-    this.target[this.property] = this.frames[i];
+    this._accumulator = t;
+    this._index = i;
+    this.target[this.property] = conf.frames[i];
 
-    return false;
+    return this.complete;
   }
 
 
   reset() {
     super.reset();
-    this.accumulator = 0;
-    this.index = 0;
+    this._accumulator = 0;
+    this._index = 0;
+  }
+}
+
+
+export class AnimationConf {
+  constructor(frames = [], durations = []) {
+    this.frames = frames;
+    this.durations = durations;
   }
 }
 
@@ -126,7 +154,7 @@ export class Assign extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     this.target[this.property] = this.value;
     return this.complete = true;
   }
@@ -142,7 +170,7 @@ export class CallFunc extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     this.func.apply(this.context, this.args);
     return this.complete = true;
   }
@@ -157,7 +185,7 @@ export class Delay extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     this.timer -= dt;
     if (this.timer <= 0) {
       return this.complete = true;
@@ -184,8 +212,8 @@ export class Repeat extends Action {
   }
 
 
-  run(dt) {
-    if (this.action.run(dt)) {
+  update(dt) {
+    if (this.action.update(dt)) {
       this.count -= 1;
       if (this.count === 0) {
         return this.complete = true;
@@ -215,11 +243,11 @@ export class Sequence extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     const actions = this.actions;
     let i = this.index;
     let action = actions[i];
-    while(action && action.run(dt)) {
+    while(action && action.update(dt)) {
       i += 1;
       action = actions[i];
     }
@@ -254,7 +282,7 @@ export class Tween extends Action {
   }
 
 
-  run(dt) {
+  update(dt) {
     this.clock = Math.min(this.clock + dt, this.time);
     this.target[this.property] = this.start + (this.end - this.start) * this.ease(this.clock / this.time);
     if (this.clock === this.time) {
