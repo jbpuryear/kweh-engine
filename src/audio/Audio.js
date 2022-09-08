@@ -103,7 +103,7 @@ export default class Audio {
   }
 
 
-  get mute() { return this._mute.gain.value !== 0; }
+  get mute() { return this._mute.gain.value === 0; }
   set mute(value) { this._mute.gain.value = value ? 0 : 1 }
 
 
