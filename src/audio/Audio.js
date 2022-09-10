@@ -19,7 +19,8 @@ class ActiveSound {
 
 export default class Audio {
   constructor(maxSounds = 32) {
-    this.context = new AudioContext();
+    const context = new AudioContext();
+    this.context = context;
     this._mute = new GainNode(this.context);
     this._volume = new GainNode(this.context);
     this._rate = 1;
@@ -34,6 +35,23 @@ export default class Audio {
 
     this._mute.connect(this.context.destination);
     this._volume.connect(this._mute);
+
+    if (context.state === 'suspended') {
+      const callback = () => {
+        const promise = context.resume();
+        if (promise) {
+          promise.then(() => {
+            document.removeEventListener('mousedown', callback);
+            document.removeEventListener('keydown', callback);
+          });
+        } else if (context.state === 'running') {
+          document.removeEventListener('mousedown', callback);
+          document.removeEventListener('keydown', callback);
+        }
+      };
+      document.addEventListener('mousedown', callback);
+      document.addEventListener('keydown', callback);
+    }
   }
 
 

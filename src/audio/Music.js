@@ -1,15 +1,26 @@
 export default class Music {
   constructor(audio, mediaElement) {
     this._mute = new GainNode(audio.context);
-    this._volume = new GainNode(audio.context);
     this._panner = new StereoPannerNode(audio.context);
     this._node = new MediaElementAudioSourceNode(audio.context, { mediaElement });
     this._element = mediaElement;
 
+    this._element.preservesPitch = false;
+
     this._mute.connect(audio._volume);
-    this._volume.connect(this._mute);
-    this._panner.connect(this._volume);
+    this._panner.connect(this._mute);
     this._node.connect(this._panner);
+
+    if (audio.context.state === 'suspended') {
+      const callback = () => {
+        if (audio.context.state === 'running') {
+          this._element.muted = false;
+          audio.context.removeEventListener('statechange', callback);
+        }
+      };
+      audio.context.addEventListener('statechange', callback);
+      this._element.muted = true;
+    }
   }
 
 
@@ -39,8 +50,8 @@ export default class Music {
   set mute(value) { this._mute.gain.value = value ? 0 : 1; }
 
 
-  get volume() { return this._volume.gain.value; }
-  set volume(value) { this._volume.gain.volume = value }
+  get volume() { return this._element.volume; }
+  set volume(value) { this._element.volume = value; }
 
 
   get pan() { return this._panner.pan.value; }
