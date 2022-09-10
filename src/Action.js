@@ -161,7 +161,7 @@ export class Assign extends Action {
 }
 
 
-export class CallFunc extends Action {
+export class Callback extends Action {
   constructor(fn, args = null, ctx = null) {
     super();
     this.func = fn;
