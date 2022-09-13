@@ -1,3 +1,6 @@
+import EventEmitter from './EventEmitter.js';
+
+
 export default class Game {
   constructor(width = 400, height = 300) {
     const canvas = document.createElement('canvas');
@@ -12,19 +15,63 @@ export default class Game {
     this._smoothDelta = this._fixedTime;
     this._stepsThisSec = 0;
     this._lastFpsUpdate = 0;
+    this._paused = false;
+    this._blurred = false;
+    this._hidden = false;
     this.canvas = canvas;
+    this.events = new EventEmitter();
     this.fps = 1000 / this._fixedTime;
+
+    window.addEventListener('blur', () => {
+      this._blurred = true;
+      this._stop();
+    });
+    window.addEventListener('focus', () => {
+      this._blurred = false;
+      this._start();
+    });
+    window.addEventListener('visibilitychange', () => {
+      const visible = document.visibilityState === 'visible';
+      this._hidden = !visible;
+      if (visible) {
+        this.start();
+      } else {
+        this._stop();
+      }
+    });
   }
 
 
   start() {
+    this._paused = false;
+    this._start();
+  }
+
+
+  stop() {
+    this._paused = true;
+    this._stop();
+  }
+
+
+  _start() {
+    if (this._paused || this._blurred || this._hidden) { return; }
     this._lastStep = performance.now();
     this._accumulator = 0;
     this._smoothDelta = this._fixedTime;
     this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
-
     this._rafID = requestAnimationFrame(now => this.step(now));
+    this.events.emit('started');
+  }
+
+
+  _stop() {
+    if (this._rafID) {
+      this.events.emit('stopped');
+      cancelAnimationFrame(this._rafID);
+      this._rafID = 0;
+    }
   }
 
 

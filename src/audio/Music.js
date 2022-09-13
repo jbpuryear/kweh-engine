@@ -11,6 +11,13 @@ export default class Music {
     this._panner.connect(this._mute);
     this._node.connect(this._panner);
 
+    audio.events.on('suspended', () => this._element.pause());
+    audio.events.on('resumed', () => {
+      if (this._playing) {
+        this._element.play()
+      }
+    });
+
     if (audio.context.state === 'suspended') {
       const callback = () => {
         if (audio.context.state === 'running') {
@@ -27,22 +34,26 @@ export default class Music {
   play(start = 0) {
     this._element.currentTime = start;
     this._element.play();
+    this._playing = true;
   }
 
 
   stop() {
     this._element.pause();
     this._element.currentTime = 0;
+    this._playing = false;
   }
 
 
   pause() {
     this._element.pause();
+    this._playing = false;
   }
 
 
   resume() {
     this._element.play();
+    this._playing = true;
   }
 
 

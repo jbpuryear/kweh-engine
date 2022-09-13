@@ -1,3 +1,6 @@
+import EventEmitter from '../EventEmitter.js';
+
+
 class ActiveSound {
   constructor(audio) {
     this.mute = new GainNode(audio.context);
@@ -21,6 +24,7 @@ export default class Audio {
   constructor(maxSounds = 32) {
     const context = new AudioContext();
     this.context = context;
+    this.events = new EventEmitter();
     this._mute = new GainNode(this.context);
     this._volume = new GainNode(this.context);
     this._rate = 1;
@@ -111,13 +115,15 @@ export default class Audio {
   }
 
 
-  pause() {
-    this.context.suspend();
+  suspend() {
+    this._mute.disconnect();
+    this.events.emit('suspended');
   }
 
 
   resume() {
-    this.context.resume();
+    this._mute.connect(this.context.destination);
+    this.events.emit('resumed');
   }
 
 
