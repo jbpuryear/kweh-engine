@@ -56,6 +56,7 @@ export class Input {
 
   update(dt, time) {
     this._buffer -= dt;
+    this._wasDown = this._strength > 0;
 
     const trigs = this.triggers;
     let max = 0;
@@ -69,8 +70,6 @@ export class Input {
       this._buffer = this._bufferTime;
       this.time = time;
     }
-
-    this._wasDown = this._strength > 0;
   }
 
   getStrength() {
