@@ -1,5 +1,6 @@
 export default class Music {
   constructor(audio, mediaElement) {
+    this._audio = audio;
     this._mute = new GainNode(audio.context);
     this._panner = new StereoPannerNode(audio.context);
     this._node = new MediaElementAudioSourceNode(audio.context, { mediaElement });
@@ -11,21 +12,25 @@ export default class Music {
     this._panner.connect(this._mute);
     this._node.connect(this._panner);
 
-    audio.events.on('suspended', () => this._element.pause());
-    audio.events.on('resumed', () => {
+    this._onSuspended = this._element.pause();
+    this._onResumed = () => {
       if (this._playing) {
         this._element.play()
       }
-    });
+    };
+    this._onStateChange = null;
+    audio.events.on('suspended', this._onSuspended);
+    audio.events.on('resumed', this._onResumed);
 
     if (audio.context.state === 'suspended') {
-      const callback = () => {
+      this._onStateChange = () => {
         if (audio.context.state === 'running') {
           this._element.muted = false;
-          audio.context.removeEventListener('statechange', callback);
+          audio.context.removeEventListener('statechange', this._onStateChange);
+          this._onStateChange = null;
         }
       };
-      audio.context.addEventListener('statechange', callback);
+      audio.context.addEventListener('statechange', this._onStateChange);
       this._element.muted = true;
     }
   }
@@ -75,4 +80,17 @@ export default class Music {
 
   get currentTime() { return this._element.currentTime; }
   set currentTime(value) { this._element.currentTime = value; }
+
+
+  destroy() {
+    this._mute.disconnect();
+    this._element.pause();
+    this._element.src = null;
+    this._element = null;
+    this._audio.events.off('suspended', this._onSuspended);
+    this._audio.events.off('resumed', this._onResumed);
+    if (this._onStateChange) {
+      this._audio.context.removeEventListener('statechange', this._onStateChange);
+    }
+  }
 }
