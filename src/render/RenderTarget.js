@@ -1,10 +1,10 @@
-export default class RenderTarget {
+import Texture from './Texture.js';
+
+
+export default class RenderTarget extends Texture {
   constructor(renderer, width, height) {
-    this.renderer = renderer;
-    this.width = width;
-    this.height = height;
+    super(renderer, null, width, height);
     this.framebuffer = null;
-    this.texture = null;
 
     this.renderer.on('webglcontextrestored', this._init, this);
 
@@ -23,7 +23,7 @@ export default class RenderTarget {
 
 
   _init(renderer) {
-    this.texture = renderer.createTexture(null, this.width, this.height);
-    this.framebuffer = renderer.createFramebuffer(this.texture);
+    super._init(renderer);
+    this.framebuffer = renderer.createFramebuffer(this.glTexture);
   }
 }

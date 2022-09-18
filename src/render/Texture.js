@@ -2,9 +2,11 @@ import Frame from './Frame.js';
 
 
 export default class Texture {
-  constructor(renderer, source) {
+  constructor(renderer, source, width, height) {
     this.renderer = renderer;
     this.source = source;
+    this.width = source?.width ?? width;
+    this.height = source?.height ?? height;
     this.glTexture = null;
     this.glUnit = -1;
     this.frames = new Map();
@@ -30,7 +32,7 @@ export default class Texture {
 
 
   _init(renderer) {
-    this.glTexture = renderer.createTexture(this.source);
+    this.glTexture = renderer.createTexture(this.source, this.width, this.height);
     this.glUnit = -1;
   }
 }
