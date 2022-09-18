@@ -34,7 +34,7 @@ export default class Game {
       const visible = document.visibilityState === 'visible';
       this._hidden = !visible;
       if (visible) {
-        this.start();
+        this._start();
       } else {
         this._stop();
       }
