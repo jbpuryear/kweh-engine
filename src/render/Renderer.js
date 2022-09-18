@@ -196,9 +196,13 @@ export default class Renderer extends EventEmitter {
     }
 
     if (texture !== prev) {
-      gl.bindTexture(gl.TEXTURE_2D, texture.glTexture);
       this._boundTextures[unit] = texture;
-      texture.glUnit = unit;
+      if (texture) {
+        gl.bindTexture(gl.TEXTURE_2D, texture.glTexture);
+        texture.glUnit = unit;
+      } else {
+        gl.bindTexture(gl.TEXTURE_2D, null);
+      }
       if (prev) {
         prev.glUnit = -1;
       }
@@ -208,11 +212,7 @@ export default class Renderer extends EventEmitter {
 
 
   unbindTexture(unit) {
-    const tex = this._boundTextures[unit];
-    if (tex) {
-      tex.glUnit = -1;
-      this._boundTextures[unit] = null;
-    }
+    this.bindTexture(null, unit);
   }
 
 
