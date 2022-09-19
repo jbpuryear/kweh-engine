@@ -5,6 +5,7 @@ export default class Music {
     this._panner = new StereoPannerNode(audio.context);
     this._node = new MediaElementAudioSourceNode(audio.context, { mediaElement });
     this._element = mediaElement;
+    this._playing = false;
 
     this._element.preservesPitch = false;
 
@@ -12,15 +13,18 @@ export default class Music {
     this._panner.connect(this._mute);
     this._node.connect(this._panner);
 
-    this._onSuspended = this._element.pause();
+    this._onSuspended = () => this._element.pause();
     this._onResumed = () => {
       if (this._playing) {
         this._element.play()
       }
     };
+    this._onEnded = () => this._playing = false;
     this._onStateChange = null;
+
     audio.events.on('suspended', this._onSuspended);
     audio.events.on('resumed', this._onResumed);
+    this._element.addEventListener('ended', this._onEnded);
 
     if (audio.context.state === 'suspended') {
       this._onStateChange = () => {
@@ -57,8 +61,10 @@ export default class Music {
 
 
   resume() {
-    this._element.play();
-    this._playing = true;
+    if (!this._element.ended) {
+      this._element.play();
+      this._playing = true;
+    }
   }
 
 
@@ -84,6 +90,7 @@ export default class Music {
 
   destroy() {
     this._mute.disconnect();
+    this._element.removeEventListener('ended', this._onEnded);
     this._element.pause();
     this._element.src = null;
     this._element = null;

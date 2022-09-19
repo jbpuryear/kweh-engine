@@ -16,8 +16,8 @@ export default class Game {
     this._stepsThisSec = 0;
     this._lastFpsUpdate = 0;
     this._paused = false;
-    this._blurred = false;
-    this._hidden = false;
+    this._blurred = !document.hasFocus();
+    this._hidden = document.visibilityState === 'hidden';
     this.canvas = canvas;
     this.events = new EventEmitter();
     this.fps = 1000 / this._fixedTime;
@@ -55,7 +55,7 @@ export default class Game {
 
 
   _start() {
-    if (this._paused || this._blurred || this._hidden) { return; }
+    if (this._rafID || this._paused || this._blurred || this._hidden) { return; }
     this._lastStep = performance.now();
     this._accumulator = 0;
     this._smoothDelta = this._fixedTime;
