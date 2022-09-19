@@ -12,9 +12,6 @@ export default class Game {
     this._maxFrameTime = 200;
     this._lastStep = 0;
     this._accumulator = 0;
-    this._smoothDelta = this._fixedTime;
-    this._stepsThisSec = 0;
-    this._lastFpsUpdate = 0;
     this._paused = false;
     this._blurred = !document.hasFocus();
     this._hidden = document.visibilityState === 'hidden';
@@ -58,7 +55,6 @@ export default class Game {
     if (this._rafID || this._paused || this._blurred || this._hidden) { return; }
     this._lastStep = performance.now();
     this._accumulator = 0;
-    this._smoothDelta = this._fixedTime;
     this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
     this._rafID = requestAnimationFrame(now => this.step(now));
@@ -76,27 +72,18 @@ export default class Game {
 
 
   step(now) {
-    this._stepsThisSec += 1;
-    if (now >= this._lastFpsUpdate + 1000) {
-      this.fps = (this._stepsThisSec * 1000) / (now - this._lastFpsUpdate);
-      this._stepsThisSec = 0;
-      this._lastFpsUpdate = now;
-    }
+    const fixed = this._fixedTime;
+
     let dt = now - this._lastStep;
     this._lastStep = now;
 
+    const smooth = Math.pow(0.9, fixed * 60 / 1000);
+    this.fps = 1000 / dt * (1 - smooth) + this.fps * smooth;
+
     // It's possible for the browser to give a negative time delta.
-    dt = Math.max(0, dt);
+    dt = Math.max(0, Math.min(dt, this._maxFrameTime));
 
-    if (dt > this._maxFrameTime) {
-      dt = Math.min(this._smoothDelta, this._maxFrameTime);
-    }
-
-    const smooth = dt * 0.2 + this._smoothDelta * 0.8;
-    this._smoothDelta = smooth;
-
-    const fixed = this._fixedTime;
-    let acc = this._accumulator + smooth;
+    let acc = this._accumulator + dt;
     while (acc >= fixed) {
       this.fixedUpdate(fixed);
       acc -= fixed;
