@@ -27,7 +27,9 @@ export default class Renderer extends EventEmitter {
       e.preventDefault();
       this.contextLost = false;
       this._init();
+      this.emit('precontextrestored', this);
       this.emit('webglcontextrestored', this);
+      this.emit('postcontextrestored', this);
 
       const batch = this._batch;
       const shader = this._shader;
