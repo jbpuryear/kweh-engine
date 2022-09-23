@@ -137,7 +137,7 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  deleteFramebuffer() {
+  deleteFramebuffer(framebuffer) {
     this.gl.deleteFramebuffer(framebuffer);
   }
 
