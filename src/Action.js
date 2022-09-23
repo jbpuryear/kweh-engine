@@ -18,6 +18,11 @@ export class ActionManager {
   }
 
 
+  stopAll() {
+    this.actions.clear();
+  }
+
+
   update(dt) {
     for (const action of this.actions) {
       if (action.update(dt)) {
