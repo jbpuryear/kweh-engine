@@ -85,6 +85,7 @@ export default class ECSPool {
 
 
   killAll() {
+    if (this.aliveHead === 0) { return; }
     const bn = this.next;
     const bp = this.prev;
     bn[this.aliveTail] = this.deadHead;
