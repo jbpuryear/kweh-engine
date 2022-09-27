@@ -12,7 +12,7 @@ export default class Game {
     this._maxFrameTime = 200;
     this._lastStep = 0;
     this._accumulator = 0;
-    this._paused = false;
+    this._paused = true;
     this._blurred = !document.hasFocus();
     this._hidden = document.visibilityState === 'hidden';
     this.canvas = canvas;
