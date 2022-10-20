@@ -1,9 +1,4 @@
-const EPSILON = 0.00000001;
-
-
-function fuzzyEquals(a, b) {
-  return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
-}
+import { equal as fuzzyEquals } from './Fuzzy.js';
 
 
 export default class Vec2 {
@@ -33,6 +28,13 @@ export default class Vec2 {
     const mag = Math.sqrt(x1*x1 + y1*y1) * Math.sqrt(x2*x2 + y2*y2);
     const cos = mag && (x1 * x2 + y1 * y2) / mag;    //short circuits if mag == 0
     return Math.acos(Math.min(Math.max(cos, -1), 1));
+  }
+
+
+  static clamp(v, min, max, out) {
+    out.x = Math.min(Math.max(v.x, min), max);
+    out.y = Math.min(Math.max(v.y, min), max);
+    return out;
   }
 
 
@@ -155,6 +157,13 @@ export default class Vec2 {
   }
 
 
+  static scaleAdd(a, b, s, out) {
+    out.x = a.x + b.x * s;
+    out.y = a.y + b.y * s;
+    return out;
+  }
+
+
   static set(x, y, out) {
     out.x = x;
     out.y = y;
@@ -179,6 +188,7 @@ export default class Vec2 {
   add(v) { return Vec2.add(this, v, this); }
   angle() { return Math.atan2(this.y, this.x); }
   angleTo(v) { return Vec2.angleTo(this, v); }
+  clamp(min, max) { return Vec2.clamp(this, min, max, this); }
   clone() { return new Vec2(this.x, this.y); }
   copy(v) { return Vec2.copy(v, this); }
   cross(v, out) { return Vec2.cross(this, v, out); }
@@ -197,6 +207,7 @@ export default class Vec2 {
   normalize() { return Vec2.normalize(this, this); }
   round() { return Vec2.round(this, this); }
   scale(s) { return Vec2.scale(this, s, this); }
+  scaleAdd(s) { return Vec2.scaleAdd(this, v, s, this); }
   set(x, y) { return Vec2.set(x, y, this); }
   setLength(length) { return Vec2.setLength(this, length, this); }
   subtract(v) { return Vec2.subtract(this, v, this); }
