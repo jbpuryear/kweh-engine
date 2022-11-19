@@ -80,6 +80,14 @@ export default class AABB {
   }
 
 
+  static setBounds(aabb, x1, y1, x2, y2) {
+    aabb.x = x1;
+    aabb.y = y1;
+    aabb.width = x2 - x1;
+    aabb.height = y2 - y1;
+  }
+
+
   contains(x, y) { return AABB.contains(this, x, y); }
   copy(aabb) { return AABB.copy(aabb, this); }
   expand(x, y) { return AABB.expand(this, x, y, this); }
@@ -88,6 +96,7 @@ export default class AABB {
   merge(aabb) { return AABB.merge(this, aabb, this); }
   mergePoint(x, y) { return AABB.mergePoint(this, x, y, this); }
   set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
+  setBounds(x1, y1, x2, y2) { return AABB.setBounds(this, x1, y1, x2, y2); }
 
   left() { return this.x; }
   right() { return this.x + this.width; }
