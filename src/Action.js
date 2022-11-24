@@ -302,3 +302,30 @@ export class Tween extends Action {
     this.clock = 0;
   }
 }
+
+
+export class TweenCallback extends Action {
+  constructor(time, callback, ease = linear) {
+    super();
+    this.time = Math.max(time, 0);
+    this.callback = callback;
+    this.ease = ease;
+    this.clock = 0;
+  }
+
+
+  update(dt) {
+    this.clock = Math.min(this.clock + dt, this.time);
+    this.callback(this.ease(this.clock / this.time));
+    if (this.clock === this.time) {
+      return this.complete = true;
+    }
+    return false;
+  }
+
+
+  reset() {
+    super.reset();
+    this.clock = 0;
+  }
+}
