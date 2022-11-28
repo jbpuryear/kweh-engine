@@ -119,3 +119,38 @@ export const bounceOut = x => {
 }
 
 export const bounceInOut = x => x < 0.5 ? (1 - bounceOut(1 - 2 * x)) / 2 : (1 + bounceOut(2 * x - 1)) / 2;
+
+
+export const map = new Map([
+   [ 'linear', linear ],
+   [ 'quadIn', quadIn ],
+   [ 'quadOut', quadOut ],
+   [ 'quadInOut', quadInOut ],
+   [ 'cubicIn', cubicIn ],
+   [ 'cubicOut', cubicOut ],
+   [ 'cubicInOut', cubicInOut ],
+   [ 'quartIn', quartIn ],
+   [ 'quartOut', quartOut ],
+   [ 'quartInOut', quartInOut ],
+   [ 'quintIn', quintIn ],
+   [ 'quintOut', quintOut ],
+   [ 'quintInOut', quintInOut ],
+   [ 'expoIn', expoIn ],
+   [ 'expoOut', expoOut ],
+   [ 'expoInOut', expoInOut ],
+   [ 'sineIn', sineIn ],
+   [ 'sineOut', sineOut ],
+   [ 'sineInOut', sineInOut ],
+   [ 'circIn', circIn ],
+   [ 'circOut', circOut ],
+   [ 'circInOut', circInOut ],
+   [ 'backIn', backIn ],
+   [ 'backOut', backOut ],
+   [ 'backInOut', backInOut ],
+   [ 'elasticIn', elasticIn ],
+   [ 'elasticOut', elasticOut ],
+   [ 'elasticInOut', elasticInOut ],
+   [ 'bounceIn', bounceIn ],
+   [ 'bounceOut', bounceOut ],
+   [ 'bounceInOut', bounceInOut ],
+]);
