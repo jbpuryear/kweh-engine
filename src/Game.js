@@ -82,16 +82,17 @@ export default class Game {
 
     // It's possible for the browser to give a negative time delta.
     dt = Math.max(0, Math.min(dt, this._maxFrameTime));
+    if (dt !== 0) {
+      let acc = this._accumulator + dt;
+      while (acc >= fixed) {
+        this.fixedUpdate(fixed);
+        acc -= fixed;
+      }
+      this._accumulator = acc;
 
-    let acc = this._accumulator + dt;
-    while (acc >= fixed) {
-      this.fixedUpdate(fixed);
-      acc -= fixed;
+      this.update(dt);
+      this.render(dt, acc/fixed);
     }
-    this._accumulator = acc;
-
-    this.update(dt);
-    this.render(dt, acc/fixed);
 
     this._rafID = requestAnimationFrame(now => this.step(now));
   }
