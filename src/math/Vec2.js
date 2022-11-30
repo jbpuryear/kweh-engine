@@ -207,7 +207,7 @@ export default class Vec2 {
   normalize() { return Vec2.normalize(this, this); }
   round() { return Vec2.round(this, this); }
   scale(s) { return Vec2.scale(this, s, this); }
-  scaleAdd(s) { return Vec2.scaleAdd(this, v, s, this); }
+  scaleAdd(v, s) { return Vec2.scaleAdd(this, v, s, this); }
   set(x, y) { return Vec2.set(x, y, this); }
   setLength(length) { return Vec2.setLength(this, length, this); }
   subtract(v) { return Vec2.subtract(this, v, this); }
