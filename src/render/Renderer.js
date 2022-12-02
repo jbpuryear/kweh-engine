@@ -156,7 +156,7 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  createTexture(source, width, height) {
+  createTexture(source, width, height, nearestMin = false, nearestMag = false, nearestMip = false) {
     width = source?.width ?? width;
     height = source?.height ?? height;
     const gl = this.gl;
@@ -173,11 +173,22 @@ export default class Renderer extends EventEmitter {
 
     if (isPowerOf2) {
       gl.generateMipmap(gl.TEXTURE_2D);
+      if (nearestMip) {
+        const filter = nearestMin ? gl.NEAREST_MIPMAP_NEAREST : gl.NEAREST_MIPMAP_LINEAR;
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+      } else {
+        const filter = nearestMin ? gl.LINEAR_MIPMAP_NEAREST : gl.NEAREST_MIPMAP_LINEAR;
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+      }
     } else {
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      const filter = nearestMin ? gl.NEAREST : gl.LINEAR;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
     }
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const magFilter = nearestMag ? gl.NEAREST : gl.LINEAR;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
 
     gl.bindTexture(gl.TEXTURE_2D, (prev?.glTexture ?? null));
     return glTexture;
