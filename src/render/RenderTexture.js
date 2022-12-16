@@ -1,7 +1,7 @@
 import Texture from './Texture.js';
 
 
-export default class RenderTarget extends Texture {
+export default class RenderTexture extends Texture {
   constructor(renderer, width, height) {
     super(renderer, null, width, height);
     this.framebuffer = null;
