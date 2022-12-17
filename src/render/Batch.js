@@ -7,6 +7,7 @@ export default class Batch {
     this.buffer = null;
     this.enabled = false;
     this._sharedBuffer = useSharedBuffer;
+    this._bufferSize = bufferSize;
     this._glBuffer = null;
 
     renderer.on('webglcontextrestored', this._init, this);
@@ -16,16 +17,19 @@ export default class Batch {
 
 
   flush() {
+    this.draw();
+    this.vertexCount = 0;
+  }
+
+
+  draw() {
     if (!this.enabled) {
-      throw new Error('Cannot flush, batch is not enabled');
+      throw new Error('Cannot draw, batch is not enabled');
     }
 
-    const count = this.vertexCount;
-    if (count === 0) { return false; }
-    this.vertexCount = 0;
-
-    this.renderer._draw(count, this.vertexSize, this.buffer);
-    return true;
+    if (this.vertexCount > 0) {
+      this.renderer._draw(this.vertexCount, this.vertexSize, this.buffer);
+    }
   }
 
 
@@ -50,7 +54,7 @@ export default class Batch {
       this.buffer = renderer._getBuffer();
       this._glBuffer = renderer._getGlBuffer();
     } else {
-      this.buffer = new ArrayBuffer(bufferSize);
+      this.buffer = new ArrayBuffer(this._bufferSize);
       this._glBuffer = renderer.createBuffer(this.buffer.byteLength);
     }
     this.maxVertices = Math.floor(this.buffer.byteLength / this.vertexSize);

@@ -106,10 +106,11 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  createBuffer(size) {
+  createBuffer(sizeOrData, usage = this.gl.DYNAMIC_DRAW) {
+    const gl = this.gl;
     const glBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, usage);
     return glBuffer;
   }
 
