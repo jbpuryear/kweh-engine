@@ -21,8 +21,10 @@ export default class Texture {
 
 
   destroy() {
-    this.renderer.off('webglcontextrestored', this._init, this);
-    this.renderer.deleteTexture(this.glTexture);
+    const renderer = this.renderer;
+    if (this.glUnit !== -1) { renderer.unbindTexture(this.glUnit); }
+    renderer.off('webglcontextrestored', this._init, this);
+    renderer.deleteTexture(this.glTexture);
     this.source = null;
   }
 
