@@ -60,6 +60,16 @@ export default class Renderer extends EventEmitter {
   }
 
 
+  clearColor(color) {
+    this.gl.clearColor(
+      (color >>> 24) / 255,
+      ((color & 0xff0000) >>> 16) / 255,
+      ((color & 0xff00) >>> 8) / 255,
+      (color & 0xff) / 255
+    );
+  }
+
+
   clear() {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
