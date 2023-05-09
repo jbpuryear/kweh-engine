@@ -30,6 +30,10 @@ export default class Path {
       t = -t;
     }
 
+    if (t >= 1) {
+      return Vec2.copy(points[points.length - 1], out);
+    }
+
     let i = 0;
     while (t >= ints[i + 1]) {
       i += 1;
