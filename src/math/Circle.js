@@ -6,6 +6,7 @@ export default class Circle {
     this.x = x;
     this.y = y;
     this.radius = radius;
+    this.length = radius * 2 * Math.PI;
   }
 
 
@@ -33,6 +34,18 @@ export default class Circle {
   }
 
 
+  static interpolate(circle, t, out) {
+    t = Math.min(1, Math.max(-1, t));
+    if (t < 0) {
+      t = -t;
+    }
+    const angle = Math.PI * 2 * t;
+    const r = circle.radius;
+    out.set(circle.x + Math.cos(angle) * r, circle.y + Math.sin(angle) * r);
+    return out;
+  }
+
+
   static overlaps(a, b) {
     return overlaps(a, b);
   }
@@ -49,6 +62,7 @@ export default class Circle {
   contains(x, y) { return Circle.contains(this, x, y); }
   copy(circle) { return Circle.copy(circle, this); }
   getRandomPoint(v) { return Circle.getRandomPoint(this, v); }
+  interpolate(t, out) { return Circle.interpolate(this, t, out); }
   overlaps(circle) { return Overlaps.circle(this, circle); }
   set(x, y, radius) { return Circle.set(this, x, y, radius); }
 }
