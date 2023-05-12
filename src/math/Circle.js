@@ -1,3 +1,6 @@
+import { circle as overlaps } from './Overlaps.js';
+
+
 export default class Circle {
   constructor(x = 0, y = 0, radius = 1) {
     this.x = x;
@@ -31,10 +34,7 @@ export default class Circle {
 
 
   static overlaps(a, b) {
-    const r = a.radius + b.radius;
-    const dx = a.x - b.x;
-    const dy = a.y - b.y;
-    return r*r >= dx*dx + dy*dy;
+    return overlaps(a, b);
   }
 
 
@@ -49,7 +49,7 @@ export default class Circle {
   contains(x, y) { return Circle.contains(this, x, y); }
   copy(circle) { return Circle.copy(circle, this); }
   getRandomPoint(v) { return Circle.getRandomPoint(this, v); }
-  overlaps(circle) { return Circle.overlaps(this, circle); }
+  overlaps(circle) { return Overlaps.circle(this, circle); }
   set(x, y, radius) { return Circle.set(this, x, y, radius); }
 }
 

@@ -1,3 +1,6 @@
+import { aabb as overlaps } from './Overlaps.js';
+
+
 // Contains, overlaps fails with negative widths, heights
 export default class AABB {
   constructor(x = 0, y = 0, width = 0, height = 0) {
@@ -62,12 +65,7 @@ export default class AABB {
 
 
   static overlaps(a, b) {
-    return (
-      a.x < b.x + b.width &&
-      a.x + a.width > b.x &&
-      a.y < b.y + b.height &&
-      a.y + a.height > b.y
-    );
+    return overlaps(a, b);
   }
 
 
@@ -92,7 +90,7 @@ export default class AABB {
   copy(aabb) { return AABB.copy(aabb, this); }
   expand(x, y) { return AABB.expand(this, x, y, this); }
   getRandomPoint(v) { return AABB.getRandomPoint(this, v); }
-  overlaps(aabb) { return AABB.overlaps(this, aabb); }
+  overlaps(aabb) { return Overlaps.aabb(this, aabb); }
   merge(aabb) { return AABB.merge(this, aabb, this); }
   mergePoint(x, y) { return AABB.mergePoint(this, x, y, this); }
   set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
