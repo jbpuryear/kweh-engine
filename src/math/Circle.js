@@ -63,7 +63,12 @@ export default class Circle {
   copy(circle) { return Circle.copy(circle, this); }
   getRandomPoint(v) { return Circle.getRandomPoint(this, v); }
   interpolate(t, out) { return Circle.interpolate(this, t, out); }
-  overlaps(circle) { return Overlaps.circle(this, circle); }
+  overlaps(circle) { return overlaps(this, circle); }
   set(x, y, radius) { return Circle.set(this, x, y, radius); }
+
+  left() { return this.x - this.radius; }
+  right() { return this.x + this.radius; }
+  top() { return this.y - this.radius; }
+  bottom() { return this.y + this.radius; }
 }
 
