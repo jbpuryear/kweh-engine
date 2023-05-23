@@ -29,8 +29,8 @@ export default class Texture {
   }
 
 
-  addFrame(key, x, y, width, height) {
-    const frame = new Frame(this, x, y, width, height);
+  addFrame(key, x, y, width, height, offsetX = 0, offsetY = 0, sourceWidth = width, sourceHeight = height) {
+    const frame = new Frame(this, x, y, width, height, offsetX, offsetY, sourceWidth, sourceHeight);
     this.frames.set(key, frame);
     return frame;
   }

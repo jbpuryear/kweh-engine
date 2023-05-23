@@ -1,22 +1,26 @@
 export default class Frame {
-  constructor(texture, x, y, width, height) {
-    const sWidth = texture.source.width;
-    const sHeight = texture.source.height;
+  constructor(texture, x, y, width, height, offsetX = 0, offsetY = 0, sourceWidth = width, sourceHeight = height) {
+    const tWidth = texture.source.width;
+    const tHeight = texture.source.height;
     this.texture = texture;
-    this.u0 = x / sWidth;
-    this.v0 = y / sHeight;
-    this.u1 = (x + width) / sWidth;
-    this.v1 = (y + height) / sHeight;
-    this._sourceWidth = sWidth;
-    this._sourceHeight = sHeight;
+    this.u0 = x / tWidth;
+    this.v0 = y / tHeight;
+    this.u1 = (x + width) / tWidth;
+    this.v1 = (y + height) / tHeight;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    this.sourceWidth = sourceWidth;
+    this.sourceHeight = sourceHeight;
+    this._texWidth = tWidth;
+    this._texHeight = tHeight;
   }
 
 
   set(x, y, width, height) {
-    this.u0 = x / this._sourceWidth;
-    this.v0 = y / this._sourceHeight;
-    this.u1 = (x + width) / this._sourceWidth;
-    this.v1 = (y + height) / this._sourceHeight;
+    this.u0 = x / this._texWidth;
+    this.v0 = y / this._texHeight;
+    this.u1 = (x + width) / this._texWidth;
+    this.v1 = (y + height) / this._texHeight;
   }
 
 
@@ -29,41 +33,41 @@ export default class Frame {
 
 
   get x() {
-    return this.u0 * this._sourceWidth;
+    return this.u0 * this._texWidth;
   }
 
 
   set x(val) {
-    this.u0 = val / this._sourceWidth;
+    this.u0 = val / this._texWidth;
   }
 
 
   get y() {
-    return this.v0 * this._sourceHeight;
+    return this.v0 * this._texHeight;
   }
 
 
   set y(val) {
-    this.v0 = val / this._sourceHeight;
+    this.v0 = val / this._texHeight;
   }
 
 
   get width() {
-    return (this.u1 - this.u0) * this._sourceWidth;
+    return (this.u1 - this.u0) * this._texWidth;
   }
 
 
   set width(val) {
-    this.u1 = this.u0 + val / this._sourceWidth;
+    this.u1 = this.u0 + val / this._texWidth;
   }
 
 
   get height() {
-    return (this.v1 - this.v0) * this._sourceHeight;
+    return (this.v1 - this.v0) * this._texHeight;
   }
 
 
   set height(val) {
-    this.v1 = this.v0 + val / this._sourceHeight;
+    this.v1 = this.v0 + val / this._texHeight;
   }
 }
