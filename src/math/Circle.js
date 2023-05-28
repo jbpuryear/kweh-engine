@@ -26,7 +26,7 @@ export default class Circle {
 
 
   static getRandomPoint(circle, out) {
-    const r = circle.radius * Math.sqrt(Math.random());
+    const r = circle.radius * Math.random();
     const theta = Math.random() * 2 * Math.PI;
     out.x = circle.x + r * Math.cos(theta);
     out.y = circle.y + r * Math.sin(theta);

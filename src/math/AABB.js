@@ -90,7 +90,7 @@ export default class AABB {
   copy(aabb) { return AABB.copy(aabb, this); }
   expand(x, y) { return AABB.expand(this, x, y, this); }
   getRandomPoint(v) { return AABB.getRandomPoint(this, v); }
-  overlaps(aabb) { return Overlaps.aabb(this, aabb); }
+  overlaps(aabb) { return overlaps(this, aabb); }
   merge(aabb) { return AABB.merge(this, aabb, this); }
   mergePoint(x, y) { return AABB.mergePoint(this, x, y, this); }
   set(x, y, w, h) { return AABB.set(this, x, y, w, h); }
