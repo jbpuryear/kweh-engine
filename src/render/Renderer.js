@@ -70,8 +70,10 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  clear() {
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+  clear(color = true, depth = false) {
+    const gl = this.gl;
+    const mask = (color ? gl.COLOR_BUFFER_BIT : 0) | (depth ? gl.DEPTH_BUFFER_BIT : 0);
+    gl.clear(mask);
   }
 
 
@@ -130,12 +132,16 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  createFramebuffer(glTexture) {
+  createFramebuffer(glColor, glDepth = null) {
     const gl = this.gl;
     const fb = gl.createFramebuffer();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, glTexture, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, glColor, 0);
+
+    if (glDepth) {
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, glDepth);
+    }
 
     const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
@@ -240,7 +246,7 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  bindRenderTarget(renderTarget) {
+  bindRenderTarget(renderTarget, setViewport = true) {
     if (this._batch) {
       this._batch.flush();
     }
@@ -248,11 +254,15 @@ export default class Renderer extends EventEmitter {
     const gl = this.gl;
     if (renderTarget) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
-      gl.viewport(0, 0, renderTarget.width, renderTarget.height);
+      if (setViewport) {
+        gl.viewport(0, 0, renderTarget.width, renderTarget.height);
+      }
       this._framebuffer = renderTarget.framebuffer;
     } else {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      if (setViewport) {
+        gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+      }
       this._framebuffer = null;
     }
   }
