@@ -8,7 +8,7 @@ export async function image(url) {
     throw new Error(`Network request failed: ${url}`);
   }
   const blob = await res.blob();
-  return createImageBitmap(blob);
+  return createImageBitmap(blob, {premultiplyAlpha: 'none'});
 }
 
 
