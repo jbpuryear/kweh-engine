@@ -70,9 +70,9 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  clear(color = true, depth = false) {
+  clear(color = true, depth = false, stencil = false) {
     const gl = this.gl;
-    const mask = (color ? gl.COLOR_BUFFER_BIT : 0) | (depth ? gl.DEPTH_BUFFER_BIT : 0);
+    const mask = (color ? gl.COLOR_BUFFER_BIT : 0) | (depth ? gl.DEPTH_BUFFER_BIT : 0) | (stencil ? gl.STENCIL_BUFFER_BIT : 0);
     gl.clear(mask);
   }
 
@@ -132,14 +132,16 @@ export default class Renderer extends EventEmitter {
   }
 
 
-  createFramebuffer(glColor, glDepth = null) {
+  createFramebuffer(glColor, glDepth = null, glStencil = null) {
     const gl = this.gl;
     const fb = gl.createFramebuffer();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, glColor, 0);
 
-    if (glDepth) {
+    if (glDepth && glStencil) {
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, glDepth);
+    } else if (glDepth) {
       gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, glDepth);
     }
 
