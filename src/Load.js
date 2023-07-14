@@ -2,13 +2,13 @@ import Music from './audio/Music.js';
 import Sound from './audio/Sound.js';
 
 
-export async function image(url) {
+export async function image(url, premultiply = true) {
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Network request failed: ${url}`);
   }
   const blob = await res.blob();
-  return createImageBitmap(blob, {premultiplyAlpha: 'none'});
+  return createImageBitmap(blob, { premultiplyAlpha: premultiply ? 'premultiply' : 'none' });
 }
 
 
