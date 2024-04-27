@@ -92,7 +92,8 @@ export default class Music {
     this._mute.disconnect();
     this._element.removeEventListener('ended', this._onEnded);
     this._element.pause();
-    this._element.src = null;
+    this._element.removeAttribute('src');
+    this._element.load();
     this._element = null;
     this._audio.events.off('suspended', this._onSuspended);
     this._audio.events.off('resumed', this._onResumed);
