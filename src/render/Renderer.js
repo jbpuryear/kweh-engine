@@ -162,7 +162,7 @@ export default class Renderer extends EventEmitter {
 
 
   activeTexture(unit) {
-    if (unit < 0 && unit > this.maxTextures - 1) {
+    if (unit < 0 || unit > this.maxTextures - 1) {
       console.error(`Unit ${unit} out of range`);
       return false;
     }
