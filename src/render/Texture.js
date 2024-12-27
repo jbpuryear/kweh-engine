@@ -26,6 +26,11 @@ export default class Texture {
     renderer.off('webglcontextrestored', this._init, this);
     renderer.deleteTexture(this.glTexture);
     this.source = null;
+    this.width = 0;
+    this.height = 0;
+    this.glTexture = null;
+    this.glUnit = -1;
+    this.frames.clear();
   }
 
 
