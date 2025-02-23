@@ -57,7 +57,7 @@ export default class Game {
     this._accumulator = 0;
     this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
-    this._rafID = requestAnimationFrame(now => this.step(now));
+    this._rafID = requestAnimationFrame(() => this.step());
     this.events.emit('started');
   }
 
@@ -71,28 +71,25 @@ export default class Game {
   }
 
 
-  step(now) {
+  step() {
+    const now = performance.now();
     const fixed = this._fixedTime;
 
     let dt = now - this._lastStep;
     this._lastStep = now;
 
-    const smooth = Math.pow(0.9, fixed * 60 / 1000);
-    this.fps = 1000 / dt * (1 - smooth) + this.fps * smooth;
+    this.fps = 1000 / dt * 0.1 + this.fps * 0.9;
 
-    // It's possible for the browser to give a negative time delta.
-    dt = Math.max(0, Math.min(dt, this._maxFrameTime));
-    if (dt !== 0) {
-      let acc = this._accumulator + dt;
-      while (acc >= fixed) {
-        this.fixedUpdate(fixed);
-        acc -= fixed;
-      }
-      this._accumulator = acc;
-
-      this.update(dt);
-      this.render(dt, acc/fixed);
+    Math.min(dt, this._maxFrameTime);
+    let acc = this._accumulator + dt;
+    while (acc >= fixed) {
+      this.fixedUpdate(fixed);
+      acc -= fixed;
     }
+    this._accumulator = acc;
+
+    this.update(dt);
+    this.render(dt, acc/fixed);
 
     this._rafID = requestAnimationFrame(now => this.step(now));
   }
