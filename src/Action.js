@@ -288,6 +288,11 @@ export class Tween extends Action {
 
 
   update(dt) {
+    if (this.time === 0) {
+      this.target[this.property] = this.end;
+      return this.complete = true;
+    }
+
     this.clock = Math.min(this.clock + dt, this.time);
     this.target[this.property] = this.start + (this.end - this.start) * this.ease(this.clock / this.time);
     if (this.clock === this.time) {
