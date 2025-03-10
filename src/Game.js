@@ -8,8 +8,8 @@ export default class Game {
     canvas.height = height;
 
     this._rafID = 0;
-    this._fixedTime = 1000 / 60;
-    this._maxFrameTime = 200;
+    this._fixedTime = 1 / 60;
+    this._maxFrameTime = 0.2;
     this._lastStep = 0;
     this._accumulator = 0;
     this._paused = true;
@@ -17,7 +17,7 @@ export default class Game {
     this._hidden = document.visibilityState === 'hidden';
     this.canvas = canvas;
     this.events = new EventEmitter();
-    this.fps = 1000 / this._fixedTime;
+    this.fps = 1 / this._fixedTime;
 
     window.addEventListener('blur', () => {
       this._blurred = true;
@@ -55,7 +55,6 @@ export default class Game {
     if (this._rafID || this._paused || this._blurred || this._hidden) { return; }
     this._lastStep = performance.now();
     this._accumulator = 0;
-    this._nextFpsUpdate = this._lastStep + 1000;
     this._stepsThisSec = 0;
     this._rafID = requestAnimationFrame(() => this.step());
     this.events.emit('started');
@@ -75,10 +74,10 @@ export default class Game {
     const now = performance.now();
     const fixed = this._fixedTime;
 
-    let dt = now - this._lastStep;
+    let dt = (now - this._lastStep) / 1000;
     this._lastStep = now;
 
-    this.fps = 1000 / dt * 0.1 + this.fps * 0.9;
+    this.fps = 1 / dt * 0.1 + this.fps * 0.9;
 
     Math.min(dt, this._maxFrameTime);
     let acc = this._accumulator + dt;
@@ -103,6 +102,6 @@ export default class Game {
   }
 
 
-  render(dt, alpha) {
+  render(dt, lerp) {
   }
 }
