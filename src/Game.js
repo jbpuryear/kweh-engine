@@ -56,7 +56,7 @@ export default class Game {
     this._lastStep = performance.now();
     this._accumulator = 0;
     this._stepsThisSec = 0;
-    this._rafID = requestAnimationFrame(() => this.step());
+    this._rafID = requestAnimationFrame(now => this.step(now));
     this.events.emit('started');
   }
 
@@ -70,8 +70,7 @@ export default class Game {
   }
 
 
-  step() {
-    const now = performance.now();
+  step(now) {
     const fixed = this._fixedTime;
 
     let dt = (now - this._lastStep) / 1000;
