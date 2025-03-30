@@ -19,6 +19,7 @@ export default class Sound {
     this.start = 0;
     this.end = buffer.duration;
     this.multiplex = false;
+    this.key = '';
     this._buffer = buffer;
     this._id = -1;
     this._startedAt = -1;

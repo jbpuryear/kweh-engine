@@ -10,6 +10,7 @@ export default class Texture {
     this.glTexture = null;
     this.glUnit = -1;
     this.frames = new Map();
+    this.key = '';
     this._nearestMin = nearestMin;
     this._nearestMag = nearestMag;
     this._nearestMip = nearestMip;

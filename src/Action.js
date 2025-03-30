@@ -146,6 +146,7 @@ export class AnimationConf {
   constructor(frames = [], durations = []) {
     this.frames = frames;
     this.durations = durations;
+    this.key = '';
   }
 }
 

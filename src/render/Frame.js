@@ -11,6 +11,7 @@ export default class Frame {
     this.offsetY = offsetY;
     this.sourceWidth = sourceWidth;
     this.sourceHeight = sourceHeight;
+    this.key = '';
     this._texWidth = tWidth;
     this._texHeight = tHeight;
   }

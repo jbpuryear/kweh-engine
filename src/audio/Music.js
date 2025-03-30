@@ -6,6 +6,7 @@ export default class Music {
     this._node = new MediaElementAudioSourceNode(audio.context, { mediaElement });
     this._element = mediaElement;
     this._playing = false;
+    this.key = '';
 
     this._element.preservesPitch = false;
 
