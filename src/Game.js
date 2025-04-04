@@ -9,7 +9,7 @@ export default class Game {
 
     this._rafID = 0;
     this._fixedTime = 1 / 60;
-    this._maxFrameTime = 0.2;
+    this._maxFrameTime = this._fixedTime * 10;
     this._lastStep = 0;
     this._accumulator = 0;
     this._paused = true;
@@ -78,7 +78,7 @@ export default class Game {
 
     this.fps = 1 / dt * 0.1 + this.fps * 0.9;
 
-    Math.min(dt, this._maxFrameTime);
+    dt = Math.min(dt, this._maxFrameTime);
     let acc = this._accumulator + dt;
     while (acc >= fixed) {
       this.fixedUpdate(fixed);
