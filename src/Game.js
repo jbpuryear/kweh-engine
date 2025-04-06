@@ -78,7 +78,9 @@ export default class Game {
 
     this.fps = 1 / dt * 0.1 + this.fps * 0.9;
 
-    dt = Math.min(dt, this._maxFrameTime);
+    // We can get negative time deltas from things like losing and returning focus,
+    // pausing in the debug panel, alerts, and prompts.
+    dt = Math.max(0, Math.min(dt, this._maxFrameTime));
     let acc = this._accumulator + dt;
     while (acc >= fixed) {
       this.fixedUpdate(fixed);
