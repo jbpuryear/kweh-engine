@@ -15,6 +15,8 @@ export default class Game {
     this._paused = true;
     this._blurred = !document.hasFocus();
     this._hidden = document.visibilityState === 'hidden';
+    this._totalTime = 0;
+    this._totalFixedTime = 0;
     this.canvas = canvas;
     this.events = new EventEmitter();
     this.fps = 1 / this._fixedTime;
@@ -81,28 +83,30 @@ export default class Game {
     // We can get negative time deltas from things like losing and returning focus,
     // pausing in the debug panel, alerts, and prompts.
     dt = Math.max(0, Math.min(dt, this._maxFrameTime));
+    this._totalTime += dt;
     let acc = this._accumulator + dt;
     while (acc >= fixed) {
-      this.fixedUpdate(fixed);
+      this._totalFixedTime += fixed;
+      this.fixedUpdate(fixed, this._totalFixedTime);
       acc -= fixed;
     }
     this._accumulator = acc;
 
-    this.update(dt);
-    this.render(dt, acc/fixed);
+    this.update(dt, this._totalTime);
+    this.render(dt, this._totalTime, acc/fixed);
 
     this._rafID = requestAnimationFrame(now => this.step(now));
   }
 
 
-  fixedUpdate(dt) {
+  fixedUpdate(dt, time) {
   }
 
 
-  update(dt) {
+  update(dt, time) {
   }
 
 
-  render(dt, lerp) {
+  render(dt, time, lerp) {
   }
 }
