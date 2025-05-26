@@ -183,6 +183,26 @@ export class Callback extends Action {
 }
 
 
+export class AsyncCallback extends Action {
+  constructor(fn, args = null, ctx = null) {
+    super();
+    this.func = fn;
+    this.args = args;
+    this.context = ctx;
+    this.pending = null;
+  }
+
+
+  update(dt) {
+    if (!this.pending) {
+      this.pending = this.func.apply(this.context, this.args);
+      this.pending.finally(() => this.complete = true);
+    }
+    return this.complete;
+  }
+}
+
+
 export class Delay extends Action {
   constructor(t) {
     super();
