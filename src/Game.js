@@ -58,7 +58,7 @@ export default class Game {
     this._lastStep = performance.now();
     this._accumulator = 0;
     this._stepsThisSec = 0;
-    this._rafID = requestAnimationFrame(now => this.step(now));
+    this._rafID = requestAnimationFrame(now => this._tick(now));
     this.events.emit('started');
   }
 
@@ -72,9 +72,7 @@ export default class Game {
   }
 
 
-  step(now) {
-    const fixed = this._fixedTime;
-
+  _tick(now) {
     let dt = (now - this._lastStep) / 1000;
     this._lastStep = now;
 
@@ -83,7 +81,15 @@ export default class Game {
     // We can get negative time deltas from things like losing and returning focus,
     // pausing in the debug panel, alerts, and prompts.
     dt = Math.max(0, Math.min(dt, this._maxFrameTime));
+    this.step(dt);
+
+    this._rafID = requestAnimationFrame(now => this._tick(now));
+  }
+
+
+  step(dt) {
     this._totalTime += dt;
+    const fixed = this._fixedTime;
     let acc = this._accumulator + dt;
     while (acc >= fixed) {
       this._totalFixedTime += fixed;
@@ -94,8 +100,6 @@ export default class Game {
 
     this.update(dt, this._totalTime);
     this.render(dt, this._totalTime, acc/fixed);
-
-    this._rafID = requestAnimationFrame(now => this.step(now));
   }
 
 
