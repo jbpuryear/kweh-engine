@@ -29,7 +29,6 @@ export default class Renderer extends EventEmitter {
       this._init();
       this.emit('precontextrestored', this);
       this.emit('webglcontextrestored', this);
-      this.emit('postcontextrestored', this);
 
       const batch = this._batch;
       const shader = this._shader;
@@ -39,6 +38,15 @@ export default class Renderer extends EventEmitter {
         this._shader = null;
         this.bindPipeline(batch, shader);
       }
+
+      for (let i = 0; i < this._boundTextures.length; i += 1) {
+        const tex = this._boundTextures[i];
+        if (tex) {
+          this.bindTexture(tex, i);
+        }
+      }
+
+      this.emit('postcontextrestored', this);
     });
 
     this._init();
