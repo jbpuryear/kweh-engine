@@ -3,6 +3,20 @@ import EventEmitter from './EventEmitter.js';
 
 export const GAME_START = Symbol('game start');
 export const GAME_STOP = Symbol('game stop');
+export const GAME_PAUSE = Symbol('game pause');
+export const GAME_RESUME = Symbol('game resume');
+
+
+class Time {
+  constructor() {
+    this.total = 0;
+    this.delta = 0;
+    this.frameFract = 0;
+    this.gameTotal = 0;
+    this.gameDelta = 0;
+    this.gameFrameFract = 0;
+  }
+}
 
 
 export default class Game {
@@ -11,19 +25,22 @@ export default class Game {
     canvas.width = width;
     canvas.height = height;
 
+    this._time = new Time();
+    this._acc = 0;
     this._rafID = 0;
-    this._fixedTime = 1 / 60;
-    this._maxFrameTime = this._fixedTime * 10;
+    this._fixedStep = 1 / 60;
+    this._maxFrameTime = this._fixedStep * 10;
     this._lastStep = 0;
     this._accumulator = 0;
     this._stopped = true;
+    this._paused = false;
+    this._reqPause = false;
+    this._reqResume = false;
     this._blurred = !document.hasFocus();
     this._hidden = document.visibilityState === 'hidden';
-    this._totalTime = 0;
-    this._totalFixedTime = 0;
     this.canvas = canvas;
     this.events = new EventEmitter();
-    this.fps = 1 / this._fixedTime;
+    this.fps = 1 / this._fixedStep;
 
     window.addEventListener('blur', () => {
       this._blurred = true;
@@ -54,6 +71,21 @@ export default class Game {
   stop() {
     this._stopped = true;
     this._stop();
+  }
+
+
+  pause() {
+    this._reqPause = true;
+  }
+
+
+  resume() {
+    this._reqResume = true;
+  }
+
+
+  isPaused() {
+    return this._paused || this._pauseReq;
   }
 
 
@@ -92,29 +124,56 @@ export default class Game {
 
 
   step(dt) {
-    this._totalTime += dt;
-    const fixed = this._fixedTime;
-    let acc = this._accumulator + dt;
+    if (this._reqPause) {
+      if (!this._paused) {
+        this.events.emit(GAME_PAUSE);
+        this._paused = true;
+      }
+      this._reqPause = false;
+    }
+    if (this._reqResume) {
+      if (this._paused) {
+        this.events.emit(GAME_RESUME);
+        this._paused = false;
+      }
+      this._reqResume = false;
+    }
+    const time = this._time;
+    const fixed = this._fixedStep;
+    const gameScale = this._paused ? 0 : 1;
+
+    time.total += dt;
+    time.gameTotal += dt * gameScale;
+
+    let acc = this._acc + dt;
+    time.delta = fixed;
+    time.gameDelta = fixed * gameScale;
     while (acc >= fixed) {
-      this._totalFixedTime += fixed;
-      this.fixedUpdate(fixed, this._totalFixedTime);
+      this.fixedUpdate(time);
       acc -= fixed;
     }
-    this._accumulator = acc;
+    this._acc = acc;
 
-    this.update(dt, this._totalTime);
-    this.render(dt, this._totalTime, acc/fixed);
+    time.delta = dt;
+    time.gameDelta = dt * gameScale;
+    time.frameFract = acc / fixed;
+    if (!this._paused) {
+      time.gameFrameFract = time.frameFract;
+    }
+
+    this.update(time);
+    this.render(time);
   }
 
 
-  fixedUpdate(dt, time) {
+  fixedUpdate(time) {
   }
 
 
-  update(dt, time) {
+  update(time) {
   }
 
 
-  render(dt, time, lerp) {
+  render(time) {
   }
 }
