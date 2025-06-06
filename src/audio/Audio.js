@@ -1,5 +1,8 @@
 import EventEmitter from '../EventEmitter.js';
 
+export const AUDIO_SUSPEND = Symbol('audio suspend');
+export const AUDIO_RESTORE = Symbol('audio restore');
+
 
 class ActiveSound {
   constructor(audio) {
@@ -21,6 +24,7 @@ class ActiveSound {
 
 
 export default class Audio {
+
   constructor(maxSounds = 32) {
     const context = new AudioContext();
     this.context = context;
@@ -117,13 +121,13 @@ export default class Audio {
 
   suspend() {
     this._mute.disconnect();
-    this.events.emit('suspended');
+    this.events.emit(AUDIO_SUSPEND);
   }
 
 
-  resume() {
+  restore() {
     this._mute.connect(this.context.destination);
-    this.events.emit('resumed');
+    this.events.emit(AUDIO_RESTORE);
   }
 
 

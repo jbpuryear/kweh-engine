@@ -1,3 +1,4 @@
+import { RENDERER_CONTEXT_RESTORE } from './Renderer.js';
 import Attribute from './Attribute.js';
 import Uniform from './Uniform.js';
 
@@ -11,14 +12,14 @@ export default class Shader {
     this.attributes = attributes.map(attrib => Object.assign(new Attribute(), attrib));
     this.uniforms = null;
 
-    renderer.on('webglcontextrestored', this._init, this);
+    renderer.on(RENDERER_CONTEXT_RESTORE, this._init, this);
 
     this._init(renderer);
   }
 
 
   destroy() {
-    this.renderer.off('webglcontextrestored', this._init, this);
+    this.renderer.off(RENDERER_CONTEXT_RESTORE, this._init, this);
     this.renderer.deleteProgram(this.program);
     this.renderer = null;
     this.program = null;

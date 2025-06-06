@@ -1,3 +1,6 @@
+import { AUDIO_SUSPEND, AUDIO_RESTORE } from './Audio.js';
+
+
 export default class Music {
   constructor(audio, mediaElement) {
     this._audio = audio;
@@ -14,8 +17,8 @@ export default class Music {
     this._panner.connect(this._mute);
     this._node.connect(this._panner);
 
-    this._onSuspended = () => this._element.pause();
-    this._onResumed = () => {
+    this._onSuspend = () => this._element.pause();
+    this._onRestore = () => {
       if (this._playing) {
         this._element.play()
       }
@@ -23,8 +26,8 @@ export default class Music {
     this._onEnded = () => this._playing = false;
     this._onStateChange = null;
 
-    audio.events.on('suspended', this._onSuspended);
-    audio.events.on('resumed', this._onResumed);
+    audio.events.on(AUDIO_SUSPEND, this._onSuspend);
+    audio.events.on(AUDIO_RESTORE, this._onRestore);
     this._element.addEventListener('ended', this._onEnded);
 
     if (audio.context.state === 'suspended') {
@@ -96,8 +99,8 @@ export default class Music {
     this._element.removeAttribute('src');
     this._element.load();
     this._element = null;
-    this._audio.events.off('suspended', this._onSuspended);
-    this._audio.events.off('resumed', this._onResumed);
+    this._audio.events.off(AUDIO_SUSPEND, this._onSuspend);
+    this._audio.events.off(AUDIO_RESTORE, this._onRestore);
     if (this._onStateChange) {
       this._audio.context.removeEventListener('statechange', this._onStateChange);
     }

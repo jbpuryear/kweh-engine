@@ -1,6 +1,10 @@
 import EventEmitter from './EventEmitter.js';
 
 
+export const GAME_START = Symbol('game start');
+export const GAME_STOP = Symbol('game stop');
+
+
 export default class Game {
   constructor(width = 400, height = 300) {
     const canvas = document.createElement('canvas');
@@ -12,7 +16,7 @@ export default class Game {
     this._maxFrameTime = this._fixedTime * 10;
     this._lastStep = 0;
     this._accumulator = 0;
-    this._paused = true;
+    this._stopped = true;
     this._blurred = !document.hasFocus();
     this._hidden = document.visibilityState === 'hidden';
     this._totalTime = 0;
@@ -42,30 +46,30 @@ export default class Game {
 
 
   start() {
-    this._paused = false;
+    this._stopped = false;
     this._start();
   }
 
 
   stop() {
-    this._paused = true;
+    this._stopped = true;
     this._stop();
   }
 
 
   _start() {
-    if (this._rafID || this._paused || this._blurred || this._hidden) { return; }
+    if (this._rafID || this._stopped || this._blurred || this._hidden) { return; }
     this._lastStep = performance.now();
     this._accumulator = 0;
     this._stepsThisSec = 0;
     this._rafID = requestAnimationFrame(now => this._tick(now));
-    this.events.emit('started');
+    this.events.emit(GAME_START);
   }
 
 
   _stop() {
     if (this._rafID) {
-      this.events.emit('stopped');
+      this.events.emit(GAME_STOP);
       cancelAnimationFrame(this._rafID);
       this._rafID = 0;
     }

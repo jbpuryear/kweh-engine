@@ -1,5 +1,9 @@
 import EventEmitter from '../EventEmitter.js';
 
+export const RENDERER_PRE_CONTEXT_RESTORE = Symbol('renderer context restore');
+export const RENDERER_CONTEXT_RESTORE = Symbol('renderer context restore');
+export const RENDERER_POST_CONTEXT_RESTORE = Symbol('renderer context restore');
+
 
 export default class Renderer extends EventEmitter {
   constructor(canvas, bufferSize = 2**16) {
@@ -27,8 +31,8 @@ export default class Renderer extends EventEmitter {
       e.preventDefault();
       this.contextLost = false;
       this._init();
-      this.emit('precontextrestored', this);
-      this.emit('webglcontextrestored', this);
+      this.emit(RENDERER_PRE_CONTEXT_RESTORE, this);
+      this.emit(RENDERER_CONTEXT_RESTORE, this);
 
       const batch = this._batch;
       const shader = this._shader;
@@ -46,7 +50,7 @@ export default class Renderer extends EventEmitter {
         }
       }
 
-      this.emit('postcontextrestored', this);
+      this.emit(RENDERER_POST_CONTEXT_RESTORE, this);
     });
 
     this._init();

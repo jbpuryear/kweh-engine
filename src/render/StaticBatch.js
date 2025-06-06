@@ -1,3 +1,6 @@
+import { RENDERER_CONTEXT_RESTORE } from './Renderer.js';
+
+
 export default class StaticBatch {
   constructor(renderer, vertexSize, buffer) {
     this.renderer = renderer;
@@ -7,7 +10,7 @@ export default class StaticBatch {
     this._buffer = buffer;
     this._glBuffer = null;
 
-    renderer.on('webglcontextrestored', this._init, this);
+    renderer.on(RENDERER_CONTEXT_RESTORE, this._init, this);
 
     this._init(renderer);
   }
@@ -27,7 +30,7 @@ export default class StaticBatch {
 
 
   destroy() {
-    this.renderer.off('webglcontextrestored', this._init, this);
+    this.renderer.off(RENDERER_CONTEXT_RESTORE, this._init, this);
     this.renderer.deleteBuffer(this._glBuffer);
     this._buffer = null;
     this._glBuffer = null;

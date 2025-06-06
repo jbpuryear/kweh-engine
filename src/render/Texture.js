@@ -1,3 +1,4 @@
+import { RENDERER_CONTEXT_RESTORE } from './Renderer.js';
 import Frame from './Frame.js';
 
 
@@ -15,7 +16,7 @@ export default class Texture {
     this._nearestMag = nearestMag;
     this._nearestMip = nearestMip;
 
-    renderer.on('webglcontextrestored', this._init, this);
+    renderer.on(RENDERER_CONTEXT_RESTORE, this._init, this);
 
     this._init(renderer);
   }
@@ -24,7 +25,7 @@ export default class Texture {
   destroy() {
     const renderer = this.renderer;
     if (this.glUnit !== -1) { renderer.unbindTexture(this.glUnit); }
-    renderer.off('webglcontextrestored', this._init, this);
+    renderer.off(RENDERER_CONTEXT_RESTORE, this._init, this);
     renderer.deleteTexture(this.glTexture);
     this.source = null;
     this.width = 0;

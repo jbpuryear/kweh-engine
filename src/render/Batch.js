@@ -1,3 +1,6 @@
+import { RENDERER_CONTEXT_RESTORE } from './Renderer.js';
+
+
 export default class Batch {
   constructor(renderer, vertexSize, useSharedBuffer = true, bufferSize = 2**16) {
     this.renderer = renderer;
@@ -10,7 +13,7 @@ export default class Batch {
     this._bufferSize = bufferSize;
     this._glBuffer = null;
 
-    renderer.on('webglcontextrestored', this._init, this);
+    renderer.on(RENDERER_CONTEXT_RESTORE, this._init, this);
 
     this._init(renderer);
   }
@@ -39,7 +42,7 @@ export default class Batch {
 
 
   destroy() {
-    this.renderer.off('webglcontextrestored', this._init, this);
+    this.renderer.off(RENDERER_CONTEXT_RESTORE, this._init, this);
     this.buffer = null;
     if (!this._sharedBuffer) {
       this.renderer.deleteBuffer(this._glBuffer);

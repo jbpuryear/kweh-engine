@@ -1,3 +1,4 @@
+import { RENDERER_CONTEXT_RESTORE } from './Renderer.js';
 import Texture from './Texture.js';
 
 
@@ -10,13 +11,13 @@ export default class RenderTexture extends Texture {
     this.glDepth = null;
     this.glStencil = null;
 
-    this.renderer.on('webglcontextrestored', this._init, this);
+    this.renderer.on(RENDERER_CONTEXT_RESTORE, this._init, this);
     this._init(renderer);
   }
 
 
   destroy() {
-    this.renderer.off('webglcontextrestored', this._init, this);
+    this.renderer.off(RENDERER_CONTEXT_RESTORE, this._init, this);
     this.renderer.deleteTexture(this.texture);
     this.renderer.deleteFramebuffer(this.framebuffer);
     this.renderer = null;
