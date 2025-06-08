@@ -13,7 +13,7 @@ export default class Music {
 
     this._element.preservesPitch = false;
 
-    this._mute.connect(audio._volume);
+    this._mute.connect(audio._musicVolume);
     this._panner.connect(this._mute);
     this._node.connect(this._panner);
 

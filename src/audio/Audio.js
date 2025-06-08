@@ -16,7 +16,7 @@ class ActiveSound {
     this.loop = false;
     this.ended = true;
 
-    this.mute.connect(audio._volume);
+    this.mute.connect(audio._sfxVolume);
     this.volume.connect(this.mute);
     this.panner.connect(this.volume);
   }
@@ -24,13 +24,14 @@ class ActiveSound {
 
 
 export default class Audio {
-
   constructor(maxSounds = 32) {
     const context = new AudioContext();
     this.context = context;
     this.events = new EventEmitter();
     this._mute = new GainNode(this.context);
     this._volume = new GainNode(this.context);
+    this._sfxVolume = new GainNode(this.context);
+    this._musicVolume = new GainNode(this.context);
     this._rate = 1;
     this._id = 1;
     this._idToIndex = new Map();
@@ -43,6 +44,8 @@ export default class Audio {
 
     this._mute.connect(this.context.destination);
     this._volume.connect(this._mute);
+    this._sfxVolume.connect(this._volume);
+    this._musicVolume.connect(this._volume);
 
     if (context.state === 'suspended') {
       const callback = () => {
@@ -131,12 +134,24 @@ export default class Audio {
   }
 
 
+  getSpeakerSetup() { return this.context.destination.channelCount === 1 ? 'mono' : 'stereo'; }
+  setSpeakerSetup(val) { this.context.destination.channelCount = val === 'mono' ? 1 : 2; }
+
+
   get mute() { return this._mute.gain.value === 0; }
   set mute(value) { this._mute.gain.value = value ? 0 : 1 }
 
 
   get volume() { return this._volume.gain.value; }
   set volume(value) { this._volume.gain.value = value }
+
+
+  get sfxVolume() { return this._sfxVolume.gain.value; }
+  set sfxVolume(value) { this._sfxVolume.gain.value = value }
+
+
+  get musicVolume() { return this._musicVolume.gain.value; }
+  set musicVolume(value) { this._musicVolume.gain.value = value }
 
 
   get rate() { return this._rate; }
