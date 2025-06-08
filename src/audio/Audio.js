@@ -136,7 +136,7 @@ export default class Audio {
 
 
   get volume() { return this._volume.gain.value; }
-  set volume(value) { this._volume.gain.volume = value }
+  set volume(value) { this._volume.gain.value = value }
 
 
   get rate() { return this._rate; }
