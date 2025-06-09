@@ -47,6 +47,6 @@ export function mix(c1, c2, t) {
   const r = getR(c1) * (1 - t) + getR(c2) * t;
   const g = getG(c1) * (1 - t) + getG(c2) * t;
   const b = getB(c1) * (1 - t) + getB(c2) * t;
-  const a = getA(c1) * (1 - t) + getR(c2) * t;
+  const a = getA(c1) * (1 - t) + getA(c2) * t;
   return fromRGBA(r, g, b, a);
 }
