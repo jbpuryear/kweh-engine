@@ -47,6 +47,21 @@ export default class EventEmitter {
   }
 
 
+  offByContext(ctx) {
+    const events = this._events;
+    for (const [ key, listeners ] of events.entries()) {
+      for (const listener of listeners.values()) {
+        if (listener.context === ctx) {
+          listeners.delete(listener);
+        }
+      }
+      if (listeners.size === 0) {
+        events.delete(key);
+      }
+    }
+  }
+
+
   on(key, fn, context = null, once = false) {
     if (!fn) { return null; }
 
