@@ -30,8 +30,11 @@ export default class Audio {
     this.events = new EventEmitter();
     this._mute = new GainNode(this.context);
     this._volume = new GainNode(this.context);
+    this._volumeMultiplier = new GainNode(this.context);
     this._sfxVolume = new GainNode(this.context);
+    this._sfxMultiplier = new GainNode(this.context);
     this._musicVolume = new GainNode(this.context);
+    this._musicMultiplier = new GainNode(this.context);
     this._rate = 1;
     this._id = 1;
     this._idToIndex = new Map();
@@ -43,9 +46,12 @@ export default class Audio {
     }
 
     this._mute.connect(this.context.destination);
-    this._volume.connect(this._mute);
-    this._sfxVolume.connect(this._volume);
-    this._musicVolume.connect(this._volume);
+    this._volumeMultiplier.connect(this._mute);
+    this._volume.connect(this._volumeMultiplier);
+    this._sfxMultiplier.connect(this._volume);
+    this._sfxVolume.connect(this._sfxMultiplier);
+    this._musicMultiplier.connect(this._volume);
+    this._musicVolume.connect(this._musicMultiplier);
 
     if (context.state === 'suspended') {
       const callback = () => {
@@ -143,15 +149,27 @@ export default class Audio {
 
 
   get volume() { return this._volume.gain.value; }
-  set volume(value) { this._volume.gain.value = value }
+  set volume(value) { this._volume.gain.value = value; }
+
+
+  get volumeMultiplier() { return this._volumeMultiplier; }
+  set volumeMultiplier(value) { this._volumeMultiplier.gain.value = value; }
 
 
   get sfxVolume() { return this._sfxVolume.gain.value; }
-  set sfxVolume(value) { this._sfxVolume.gain.value = value }
+  set sfxVolume(value) { this._sfxVolume.gain.value = value; }
+
+
+  get sfxMultiplier() { return this._sfxMultiplier; }
+  set sfxMultiplier(value) { this._sfxMultiplier.gain.value = value; }
 
 
   get musicVolume() { return this._musicVolume.gain.value; }
-  set musicVolume(value) { this._musicVolume.gain.value = value }
+  set musicVolume(value) { this._musicVolume.gain.value = value; }
+
+
+  get musicMultiplier() { return this._musicMultiplier; }
+  set musicMultiplier(value) { this._musicMultiplier.gain.value = value; }
 
 
   get rate() { return this._rate; }
