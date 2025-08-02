@@ -19,8 +19,11 @@ export class InputManager {
   update(dt) {
     const time = performance.now();
     const padCount = this._gamepads.length;
-    for (let i = 0; i < padCount; i += 1) {
-      this._gamepads[i] = navigator.getGamepads?.()[i] || null;
+    const pads = navigator.getGamepads?.();
+    if (pads) {
+      for (let i = 0; i < padCount; i += 1) {
+        this._gamepads[i] = pads[i] || null;
+      }
     }
     for (const input of this.inputs.values()) {
       input.update(dt, time);
