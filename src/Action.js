@@ -47,6 +47,11 @@ export class Action {
   reset() {
     this.complete = false;
   }
+
+
+  skip() {
+    this.update();
+  }
 }
 
 
@@ -73,6 +78,13 @@ export class All extends Action {
     super.reset();
     for (const action of this.actions) {
       action.reset();
+    }
+  }
+
+
+  skip() {
+    for (const action of this.actions) {
+      action.skip();
     }
   }
 }
@@ -139,6 +151,11 @@ export class Animation extends Action {
     this._accumulator = 0;
     this._index = 0;
   }
+
+
+  skip() {
+    this.complete = true;
+  }
 }
 
 
@@ -164,6 +181,13 @@ export class Assign extends Action {
     this.target[this.property] = this.value;
     return this.complete = true;
   }
+
+
+  skip() {
+    if (!this.complete) {
+      this.update();
+    }
+  }
 }
 
 
@@ -179,6 +203,13 @@ export class Callback extends Action {
   update(dt) {
     this.func.apply(this.context, this.args);
     return this.complete = true;
+  }
+
+
+  skip() {
+    if (!this.complete) {
+      this.update();
+    }
   }
 }
 
@@ -199,6 +230,13 @@ export class AsyncCallback extends Action {
       this.pending.finally(() => this.complete = true);
     }
     return this.complete;
+  }
+
+
+  skip() {
+    if (!this.pending && !this.complete) {
+      this.update();
+    }
   }
 }
 
@@ -223,6 +261,12 @@ export class Delay extends Action {
   reset() {
     super.reset();
     this.timer = this.time;
+  }
+
+
+  skip() {
+    this.timer = 0;
+    this.complete = true;
   }
 }
 
@@ -254,6 +298,13 @@ export class Repeat extends Action {
     super.reset();
     this.counter = this.count;
     this.action.reset();
+  }
+
+
+  skip() {
+    this.action.skip();
+    this.counter = 0;
+    this.complete = true;
   }
 }
 
@@ -292,6 +343,14 @@ export class Sequence extends Action {
     }
     this.index = 0;
   }
+
+
+  skip() {
+    for (const action of this.actions) {
+      action.skip();
+    }
+    this.complete = true;
+  }
 }
 
 
@@ -327,6 +386,13 @@ export class Tween extends Action {
     super.reset();
     this.clock = 0;
   }
+
+
+  skip() {
+    this.target[this.property] = this.end;
+    this.clock = this.time;
+    this.complete = true;
+  }
 }
 
 
@@ -351,7 +417,8 @@ export class TweenCallback extends Action {
 
 
   reset() {
-    super.reset();
-    this.clock = 0;
+    this.callback(1);
+    this.clock = this.time;
+    this.complete = true;
   }
 }
