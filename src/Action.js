@@ -417,6 +417,12 @@ export class TweenCallback extends Action {
 
 
   reset() {
+    super.reset();
+    this.clock = 0;
+  }
+
+
+  skip() {
     this.callback(1);
     this.clock = this.time;
     this.complete = true;
