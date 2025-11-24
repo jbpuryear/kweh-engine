@@ -178,8 +178,11 @@ export class Assign extends Action {
 
 
   update(dt) {
-    this.target[this.property] = this.value;
-    return this.complete = true;
+    if (!this.complete) {
+      this.target[this.property] = this.value;
+      this.complete = true;
+    }
+    return true;
   }
 
 
