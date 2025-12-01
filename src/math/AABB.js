@@ -30,6 +30,12 @@ export default class AABB {
   }
 
 
+  static equals(a, b) {
+    return a.x === b.x && a.y === b.y
+      && a.width === b.width && a.height === b.height;
+  }
+
+
   static expand(aabb, x, y, out) {
     out.x = aabb.x - x;
     out.y = aabb.y - y;
@@ -88,6 +94,7 @@ export default class AABB {
 
   contains(x, y) { return AABB.contains(this, x, y); }
   copy(aabb) { return AABB.copy(aabb, this); }
+  equals(aabb) { return AABB.equals(aabb, this); }
   expand(x, y) { return AABB.expand(this, x, y, this); }
   getRandomPoint(v) { return AABB.getRandomPoint(this, v); }
   overlaps(aabb) { return overlaps(this, aabb); }
